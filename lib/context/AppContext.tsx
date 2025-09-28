@@ -8,6 +8,10 @@ export interface FoodItem {
   caloriesPerUnit: number;
   proteinPerUnit: number;
   unit: string;
+  referenceQuantity?: number;
+  referenceCalories?: number;
+  referenceProtein?: number;
+  version?: number;
 }
 
 export interface FoodEntry {
@@ -40,39 +44,104 @@ const defaultFoodItems: FoodItem[] = [
   {
     id: '1',
     name: 'Chicken Breast',
-    caloriesPerUnit: 165,
-    proteinPerUnit: 31,
-    unit: '100g'
+    caloriesPerUnit: 1.65,
+    proteinPerUnit: 0.31,
+    unit: 'g',
+    referenceQuantity: 100,
+    referenceCalories: 165,
+    referenceProtein: 31,
+    version: 2
   },
   {
     id: '2',
     name: 'Brown Rice',
-    caloriesPerUnit: 123,
-    proteinPerUnit: 2.6,
-    unit: '100g'
+    caloriesPerUnit: 1.23,
+    proteinPerUnit: 0.026,
+    unit: 'g',
+    referenceQuantity: 100,
+    referenceCalories: 123,
+    referenceProtein: 2.6,
+    version: 2
   },
   {
     id: '3',
     name: 'Greek Yogurt',
     caloriesPerUnit: 100,
     proteinPerUnit: 10,
-    unit: '1 cup'
+    unit: 'cup',
+    referenceQuantity: 1,
+    referenceCalories: 100,
+    referenceProtein: 10,
+    version: 2
   },
   {
     id: '4',
     name: 'Banana',
     caloriesPerUnit: 105,
     proteinPerUnit: 1.3,
-    unit: '1 piece'
+    unit: 'piece',
+    referenceQuantity: 1,
+    referenceCalories: 105,
+    referenceProtein: 1.3,
+    version: 2
   },
   {
     id: '5',
     name: 'Almonds',
-    caloriesPerUnit: 576,
-    proteinPerUnit: 21,
-    unit: '100g'
+    caloriesPerUnit: 5.76,
+    proteinPerUnit: 0.21,
+    unit: 'g',
+    referenceQuantity: 100,
+    referenceCalories: 576,
+    referenceProtein: 21,
+    version: 2
   }
 ];
+
+const FOOD_ITEM_VERSION = 2;
+
+const normalizeFoodItem = (item: any): FoodItem => {
+  const rawUnit = typeof item.unit === 'string' && item.unit.trim() ? item.unit.trim() : 'unit';
+
+  const candidateReferenceQuantity = Number(
+    item.referenceQuantity ?? item.unitQuantity ?? item.portionQuantity ?? 1
+  );
+  const referenceQuantity = Number.isFinite(candidateReferenceQuantity) && candidateReferenceQuantity > 0
+    ? candidateReferenceQuantity
+    : 1;
+
+  const storedVersion = typeof item.version === 'number' ? item.version : 1;
+
+  const storedCalories = Number(item.caloriesPerUnit) || 0;
+  const storedProtein = Number(item.proteinPerUnit) || 0;
+
+  const referenceCaloriesRaw = Number(
+    item.referenceCalories ?? item.caloriesPerReference ?? item.totalCalories ?? storedCalories * referenceQuantity
+  ) || 0;
+  const referenceProteinRaw = Number(
+    item.referenceProtein ?? item.proteinPerReference ?? item.totalProtein ?? storedProtein * referenceQuantity
+  ) || 0;
+
+  const caloriesPerUnit = storedVersion >= FOOD_ITEM_VERSION
+    ? storedCalories
+    : referenceQuantity ? storedCalories / referenceQuantity : storedCalories;
+
+  const proteinPerUnit = storedVersion >= FOOD_ITEM_VERSION
+    ? storedProtein
+    : referenceQuantity ? storedProtein / referenceQuantity : storedProtein;
+
+  return {
+    id: item.id?.toString() ?? Date.now().toString(),
+    name: item.name ?? '',
+    unit: rawUnit,
+    caloriesPerUnit,
+    proteinPerUnit,
+    referenceQuantity,
+    referenceCalories: referenceCaloriesRaw > 0 ? referenceCaloriesRaw : caloriesPerUnit * referenceQuantity,
+    referenceProtein: referenceProteinRaw > 0 ? referenceProteinRaw : proteinPerUnit * referenceQuantity,
+    version: FOOD_ITEM_VERSION
+  };
+};
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [foodItems, setFoodItems] = useState<FoodItem[]>(defaultFoodItems);
@@ -90,7 +159,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const savedUserSettings = localStorage.getItem('dietTracker_userSettings');
 
       if (savedFoodItems) {
-        setFoodItems(JSON.parse(savedFoodItems));
+        const parsedItems = JSON.parse(savedFoodItems).map((item: any) =>
+          normalizeFoodItem(item)
+        );
+        setFoodItems(parsedItems);
       }
       if (savedFoodEntries) {
         setFoodEntries(JSON.parse(savedFoodEntries));
@@ -125,7 +197,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       ...item,
       id: Date.now().toString()
     };
-    setFoodItems(prev => [...prev, newItem]);
+    setFoodItems(prev => [...prev, normalizeFoodItem(newItem)]);
   };
 
   const addFoodEntry = (entry: FoodEntry) => {

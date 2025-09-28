@@ -14,18 +14,32 @@ interface SettingsModalProps {
 
 export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const { userSettings, updateUserSettings } = useAppContext();
-  const [minCalories, setMinCalories] = useState(userSettings.minCalories);
-  const [minProtein, setMinProtein] = useState(userSettings.minProtein);
+  const [minCaloriesInput, setMinCaloriesInput] = useState(
+    userSettings.minCalories.toString()
+  );
+  const [minProteinInput, setMinProteinInput] = useState(
+    userSettings.minProtein.toString()
+  );
+
+  const parsedMinCalories = parseInt(minCaloriesInput, 10);
+  const normalizedMinCalories = Number.isNaN(parsedMinCalories)
+    ? 0
+    : Math.max(0, parsedMinCalories);
+
+  const parsedMinProtein = parseFloat(minProteinInput);
+  const normalizedMinProtein = Number.isNaN(parsedMinProtein)
+    ? 0
+    : Math.max(0, parsedMinProtein);
 
   useEffect(() => {
-    setMinCalories(userSettings.minCalories);
-    setMinProtein(userSettings.minProtein);
+    setMinCaloriesInput(userSettings.minCalories.toString());
+    setMinProteinInput(userSettings.minProtein.toString());
   }, [userSettings]);
 
   const handleSave = () => {
     updateUserSettings({
-      minCalories: Math.max(0, minCalories),
-      minProtein: Math.max(0, minProtein)
+      minCalories: normalizedMinCalories,
+      minProtein: normalizedMinProtein
     });
     onClose();
   };
@@ -65,8 +79,19 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             </Label>
             <Input
               type="number"
-              value={minCalories}
-              onChange={(e) => setMinCalories(Math.max(0, parseInt(e.target.value) || 0))}
+              value={minCaloriesInput}
+              onChange={(e) => {
+                const { value } = e.target;
+                if (value === '') {
+                  setMinCaloriesInput('');
+                  return;
+                }
+
+                const numericValue = Number(value);
+                if (!Number.isNaN(numericValue) && numericValue >= 0) {
+                  setMinCaloriesInput(value);
+                }
+              }}
               min="0"
               className="mt-1"
             />
@@ -81,8 +106,19 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             </Label>
             <Input
               type="number"
-              value={minProtein}
-              onChange={(e) => setMinProtein(Math.max(0, parseFloat(e.target.value) || 0))}
+              value={minProteinInput}
+              onChange={(e) => {
+                const { value } = e.target;
+                if (value === '') {
+                  setMinProteinInput('');
+                  return;
+                }
+
+                const numericValue = Number(value);
+                if (!Number.isNaN(numericValue) && numericValue >= 0) {
+                  setMinProteinInput(value);
+                }
+              }}
               min="0"
               step="0.1"
               className="mt-1"

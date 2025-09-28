@@ -16,26 +16,61 @@ export default function AddFoodModal({ isOpen, onClose }: AddFoodModalProps) {
   const { addFoodItem } = useAppContext();
   const [formData, setFormData] = useState({
     name: '',
-    caloriesPerUnit: '',
-    proteinPerUnit: '',
-    unit: ''
+    referenceQuantity: '',
+    referenceUnit: '',
+    referenceCalories: '',
+    referenceProtein: ''
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.caloriesPerUnit || !formData.proteinPerUnit || !formData.unit) {
+    if (
+      !formData.name ||
+      !formData.referenceQuantity ||
+      !formData.referenceUnit ||
+      !formData.referenceCalories ||
+      !formData.referenceProtein
+    ) {
       return;
     }
 
+    const parsedReferenceQuantity = parseFloat(formData.referenceQuantity);
+    const parsedReferenceCalories = parseFloat(formData.referenceCalories);
+    const parsedReferenceProtein = parseFloat(formData.referenceProtein);
+
+    if (
+      Number.isNaN(parsedReferenceQuantity) ||
+      Number.isNaN(parsedReferenceCalories) ||
+      Number.isNaN(parsedReferenceProtein) ||
+      parsedReferenceQuantity <= 0 ||
+      parsedReferenceCalories < 0 ||
+      parsedReferenceProtein < 0
+    ) {
+      return;
+    }
+
+    const caloriesPerUnit = parsedReferenceCalories / parsedReferenceQuantity;
+    const proteinPerUnit = parsedReferenceProtein / parsedReferenceQuantity;
+
     addFoodItem({
       name: formData.name,
-      caloriesPerUnit: parseFloat(formData.caloriesPerUnit),
-      proteinPerUnit: parseFloat(formData.proteinPerUnit),
-      unit: formData.unit
+      caloriesPerUnit,
+      proteinPerUnit,
+      unit: formData.referenceUnit,
+      referenceQuantity: parsedReferenceQuantity,
+      referenceCalories: parsedReferenceCalories,
+      referenceProtein: parsedReferenceProtein,
+      version: 2
     });
 
-    setFormData({ name: '', caloriesPerUnit: '', proteinPerUnit: '', unit: '' });
+    setFormData({
+      name: '',
+      referenceQuantity: '',
+      referenceUnit: '',
+      referenceCalories: '',
+      referenceProtein: ''
+    });
     onClose();
   };
 
@@ -87,53 +122,83 @@ export default function AddFoodModal({ isOpen, onClose }: AddFoodModalProps) {
             />
           </div>
 
-          <div>
-            <Label htmlFor="unit" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Unit
-            </Label>
-            <Input
-              id="unit"
-              type="text"
-              value={formData.unit}
-              onChange={(e) => handleInputChange('unit', e.target.value)}
-              placeholder="e.g., 100g, 1 cup, 1 piece"
-              className="mt-1"
-              required
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="referenceQuantity" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Reference amount
+              </Label>
+              <Input
+                id="referenceQuantity"
+                type="number"
+                value={formData.referenceQuantity}
+                onChange={(e) => handleInputChange('referenceQuantity', e.target.value)}
+                placeholder="e.g., 100"
+                className="mt-1"
+                min="0"
+                step="0.1"
+                required
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Enter the amount you know nutrition for (1 g, 100 g, 1 piece, etc.).
+              </p>
+            </div>
+            <div>
+              <Label htmlFor="referenceUnit" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Unit label
+              </Label>
+              <Input
+                id="referenceUnit"
+                type="text"
+                value={formData.referenceUnit}
+                onChange={(e) => handleInputChange('referenceUnit', e.target.value)}
+                placeholder="e.g., g, ml, piece"
+                className="mt-1"
+                required
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Base measurement name. 1 unit will equal 1 of these.
+              </p>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="calories" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Calories per unit
+              <Label htmlFor="referenceCalories" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Calories in amount
               </Label>
               <Input
-                id="calories"
+                id="referenceCalories"
                 type="number"
-                value={formData.caloriesPerUnit}
-                onChange={(e) => handleInputChange('caloriesPerUnit', e.target.value)}
-                placeholder="165"
+                value={formData.referenceCalories}
+                onChange={(e) => handleInputChange('referenceCalories', e.target.value)}
+                placeholder="e.g., 165"
                 className="mt-1"
                 min="0"
                 step="0.1"
                 required
               />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Calories contained in the reference amount above.
+              </p>
             </div>
             <div>
-              <Label htmlFor="protein" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Protein per unit (g)
+              <Label htmlFor="referenceProtein" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Protein in amount (g)
               </Label>
               <Input
-                id="protein"
+                id="referenceProtein"
                 type="number"
-                value={formData.proteinPerUnit}
-                onChange={(e) => handleInputChange('proteinPerUnit', e.target.value)}
-                placeholder="31"
+                value={formData.referenceProtein}
+                onChange={(e) => handleInputChange('referenceProtein', e.target.value)}
+                placeholder="e.g., 31"
                 className="mt-1"
                 min="0"
                 step="0.1"
                 required
               />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Protein in grams for the same reference amount.
+              </p>
             </div>
           </div>
 

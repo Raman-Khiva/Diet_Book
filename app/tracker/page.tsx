@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, CreditCard as Edit3 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAppContext } from '@/lib/context/AppContext';
 import FoodEntryModal from '@/components/modals/FoodEntryModal';
@@ -11,35 +11,44 @@ export default function TrackerPage() {
   const { foodItems, getFoodEntry, getDayTotals } = useAppContext();
   const [selectedFood, setSelectedFood] = useState<{ foodId: string; date: string } | null>(null);
   const [showAddFood, setShowAddFood] = useState(false);
-  
+
+  const formatQuantity = (value: number) => {
+    if (!Number.isFinite(value)) {
+      return '0';
+    }
+    const fixed = value.toFixed(2);
+    return fixed.replace(/\.0+$/, '').replace(/\.(?=0*$)/, '');
+  };
+
   // Generate last 7 days
   const today = new Date();
-  const dates = [];
+  const dates: string[] = [];
   for (let i = 6; i >= 0; i--) {
     const date = new Date(today);
     date.setDate(date.getDate() - i);
     dates.push(date.toISOString().split('T')[0]);
   }
 
-  const formatDate = (dateStr: string) => {
+  const formatDate = (dateStr: string): string => {
     const date = new Date(dateStr);
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
-    
+
     if (date.toDateString() === today.toDateString()) {
       return 'Today';
     } else if (date.toDateString() === yesterday.toDateString()) {
       return 'Yesterday';
     }
-    return date.toLocaleDateString('en-US', { 
-      weekday: 'short', 
-      month: 'short', 
-      day: 'numeric' 
+
+    return date.toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric'
     });
   };
 
-  const handleCellClick = (foodId: string, date: string) => {
+  const handleCellClick = (foodId: string, date: string): void => {
     setSelectedFood({ foodId, date });
   };
 
@@ -102,7 +111,7 @@ export default function TrackerPage() {
                           {food.name}
                         </div>
                         <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {food.caloriesPerUnit} cal, {food.proteinPerUnit}g protein per {food.unit}
+                          {formatQuantity(food.referenceCalories ?? food.caloriesPerUnit)} cal, {formatQuantity(food.referenceProtein ?? food.proteinPerUnit)}g protein per {formatQuantity(food.referenceQuantity ?? 1)} {food.unit}
                         </div>
                       </div>
                     </td>
@@ -113,7 +122,7 @@ export default function TrackerPage() {
                       return (
                         <td 
                           key={date}
-                          className="p-2 text-center"
+                          className="p-1 text-center"
                         >
                           <button
                             onClick={() => handleCellClick(food.id, date)}
@@ -124,12 +133,12 @@ export default function TrackerPage() {
                             }`}
                           >
                             {amount > 0 ? (
-                              <div className="text-sm">
+                              <div className="text-sm space-y-1">
                                 <div className="font-semibold text-blue-700 dark:text-blue-300">
-                                  {amount} {food.unit}
+                                  {formatQuantity(amount)}{food.unit}
                                 </div>
-                                <div className="text-xs text-blue-600 dark:text-blue-400">
-                                  {Math.round(food.caloriesPerUnit * amount)} cal
+                                <div className="text-xs font-[500] text-blue-600 dark:text-blue-400">
+                                  {Math.round(food.caloriesPerUnit * amount)} cal · {formatQuantity(amount *food.proteinPerUnit)} g
                                 </div>
                               </div>
                             ) : (

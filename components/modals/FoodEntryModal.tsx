@@ -15,12 +15,32 @@ interface FoodEntryModalProps {
 
 export default function FoodEntryModal({ isOpen, onClose, foodItem, date }: FoodEntryModalProps) {
   const { getFoodEntry, updateFoodEntry } = useAppContext();
-  const [amount, setAmount] = useState(0);
+  const [amountInput, setAmountInput] = useState('0');
+
+  const parsedAmount = parseFloat(amountInput);
+  const amount = Number.isNaN(parsedAmount) ? 0 : Math.max(0, parsedAmount);
+
+  const formatQuantity = (value: number) => {
+    if (!Number.isFinite(value)) {
+      return '0';
+    }
+    const fixed = value.toFixed(2);
+    return fixed.replace(/\.0+$/, '').replace(/\.(?=0*$)/, '');
+  };
+
+  const formatNumber = (value: number) => {
+    if (!Number.isFinite(value)) {
+      return '0';
+    }
+    const fixed = value.toFixed(2);
+    return fixed.replace(/\.0+$/, '').replace(/\.(?=0*$)/, '');
+  };
 
   useEffect(() => {
     if (isOpen) {
       const entry = getFoodEntry(foodItem.id, date);
-      setAmount(entry?.amount || 0);
+      const entryAmount = entry?.amount ?? 0;
+      setAmountInput(entryAmount.toString());
     }
   }, [isOpen, foodItem.id, date, getFoodEntry]);
 
@@ -31,8 +51,17 @@ export default function FoodEntryModal({ isOpen, onClose, foodItem, date }: Food
 
   if (!isOpen) return null;
 
-  const totalCalories = Math.round(foodItem.caloriesPerUnit * amount);
-  const totalProtein = Math.round(foodItem.proteinPerUnit * amount * 10) / 10;
+  const unitLabel = foodItem.unit || 'unit';
+  const referenceQuantity = foodItem.referenceQuantity ?? 1;
+  const referenceCalories = foodItem.referenceCalories ?? foodItem.caloriesPerUnit * referenceQuantity;
+  const referenceProtein = foodItem.referenceProtein ?? foodItem.proteinPerUnit * referenceQuantity;
+
+  const totalCalories = Math.round(foodItem.caloriesPerUnit * amount * 100) / 100;
+  const totalProtein = Math.round(foodItem.proteinPerUnit * amount * 100) / 100;
+  const formattedAmount = formatQuantity(amount);
+  const referenceSummary = `${formatQuantity(referenceQuantity)} ${unitLabel}`;
+  const totalReferenceQuantity = amount * referenceQuantity;
+  const formattedTotalReferenceQuantity = formatQuantity(totalReferenceQuantity);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -68,65 +97,82 @@ export default function FoodEntryModal({ isOpen, onClose, foodItem, date }: Food
         <div className="space-y-4">
           <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
             <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Per {foodItem.unit}
+              For {referenceSummary}
             </h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="text-gray-500 dark:text-gray-400">Calories:</span>
                 <span className="ml-2 font-medium text-gray-900 dark:text-white">
-                  {foodItem.caloriesPerUnit}
+                  {formatNumber(referenceCalories)}
                 </span>
               </div>
               <div>
                 <span className="text-gray-500 dark:text-gray-400">Protein:</span>
                 <span className="ml-2 font-medium text-gray-900 dark:text-white">
-                  {foodItem.proteinPerUnit}g
+                  {formatNumber(referenceProtein)}g
                 </span>
               </div>
             </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
+              Per 1 {unitLabel}: {formatNumber(foodItem.caloriesPerUnit)} cal, {formatNumber(foodItem.proteinPerUnit)}g protein.
+            </p>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Amount ({foodItem.unit})
+              Amount ({unitLabel})
             </label>
             <Input
               type="number"
-              value={amount}
-              onChange={(e) => setAmount(Math.max(0, parseFloat(e.target.value) || 0))}
+              value={amountInput}
+              onChange={(e) => {
+                const { value } = e.target;
+                if (value === '') {
+                  setAmountInput('');
+                  return;
+                }
+
+                const numericValue = Number(value);
+                if (!Number.isNaN(numericValue) && numericValue >= 0) {
+                  setAmountInput(value);
+                }
+              }}
               step="0.1"
               min="0"
               className="w-full"
               autoFocus
             />
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Enter how many {unitLabel} you consumed.
+            </p>
           </div>
 
           {amount > 0 && (
             <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
               <h3 className="text-sm font-medium text-blue-700 dark:text-blue-300 mb-2">
-                Total for {amount} {foodItem.unit}
+                Total for {formattedAmount} {unitLabel}{formattedAmount !== '1' ? 's' : ''}
               </h3>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-blue-600 dark:text-blue-400">Calories:</span>
                   <span className="ml-2 font-bold text-blue-700 dark:text-blue-300">
-                    {totalCalories}
+                    {formatNumber(totalCalories)}
                   </span>
                 </div>
                 <div>
                   <span className="text-blue-600 dark:text-blue-400">Protein:</span>
                   <span className="ml-2 font-bold text-blue-700 dark:text-blue-300">
-                    {totalProtein}g
+                    {formatNumber(totalProtein)}g
                   </span>
                 </div>
               </div>
+              
             </div>
           )}
         </div>
 
         <div className="flex space-x-3 mt-6">
           <Button
-            variant="outline"
             onClick={onClose}
             className="flex-1"
           >
