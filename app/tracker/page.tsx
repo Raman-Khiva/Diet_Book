@@ -58,22 +58,24 @@ export default function TrackerPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
+        <div className="flex flex-col md:flex-row justify-between items-start 
+            md:items-center mb-8 mt-6">
+
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-xl md:text-4xl leading-tight font-bold text-gray-900 dark:text-white mb-1">
               Food Tracker
             </h1>
-            <p className="text-gray-600 dark:text-gray-300">
+            <p className="text-gray-600 max-md:text-sm dark:text-gray-300">
               Click any cell to log your food intake
             </p>
           </div>
           <Button
             onClick={() => setShowAddFood(true)}
-            className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 mt-4 sm:mt-0"
+            className="bg-gradient-to-r p-2 max-md:text-xs from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 mt-4 md:mt-0"
           >
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-3 w-3 mr-2" />
             Add Food Item
           </Button>
         </div>
@@ -83,16 +85,14 @@ export default function TrackerPage() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
-                  <th className="text-left p-4 font-semibold text-gray-900 dark:text-white min-w-[200px]">
+                <tr className="border-b max-md:text-xs border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+                  <th className="text-left p-4 font-semibold text-gray-900 dark:text-white min-w-[130px] overflow-x-auto">
                     Food Item
                   </th>
                   {dates.map(date => (
-                    <th key={date} className="text-center p-4 font-semibold text-gray-900 dark:text-white min-w-[120px]">
-                      <div className="text-sm">{formatDate(date)}</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        {new Date(date).getDate()}
-                      </div>
+                    <th key={date} className="text-center p-4 font-semibold text-gray-900 dark:text-white min-w-[100px] overflow-x-auto">
+                      <div className="">{formatDate(date)}</div>
+                      
                     </th>
                   ))}
                 </tr>
@@ -105,13 +105,13 @@ export default function TrackerPage() {
                       index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/50 dark:bg-gray-700/20'
                     }`}
                   >
-                    <td className="p-4">
+                    <td className="p-3">
                       <div>
-                        <div className="font-medium text-gray-900 dark:text-white">
+                        <div className="font-[500] max-md:text-xs text-gray-900 mb-1 dark:text-white">
                           {food.name}
                         </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {formatQuantity(food.referenceCalories ?? food.caloriesPerUnit)} cal, {formatQuantity(food.referenceProtein ?? food.proteinPerUnit)}g protein per {formatQuantity(food.referenceQuantity ?? 1)} {food.unit}
+                        <div className="text-md max-md:text-[10px] max-md:leading-tight text-gray-500 dark:text-gray-400">
+                          {formatQuantity(food.referenceCalories ?? food.caloriesPerUnit)} cal, {formatQuantity(food.referenceProtein ?? food.proteinPerUnit)}g protein <br/>per {formatQuantity(food.referenceQuantity ?? 1)} {food.unit}
                         </div>
                       </div>
                     </td>
@@ -133,17 +133,17 @@ export default function TrackerPage() {
                             }`}
                           >
                             {amount > 0 ? (
-                              <div className="text-sm space-y-1">
+                              <div className="text-md max-md:text-xs space-y-1">
                                 <div className="font-semibold text-blue-700 dark:text-blue-300">
                                   {formatQuantity(amount)}{food.unit}
                                 </div>
-                                <div className="text-xs font-[500] text-blue-600 dark:text-blue-400">
+                                <div className="text-md max-md:text-[10px] font-[500] text-blue-600 dark:text-blue-400">
                                   {Math.round(food.caloriesPerUnit * amount)} cal · {formatQuantity(amount *food.proteinPerUnit)} g
                                 </div>
                               </div>
                             ) : (
                               <div className="text-gray-400 group-hover:text-blue-500 transition-colors">
-                                <Plus className="h-5 w-5 mx-auto" />
+                                <Plus className="h-3 w-3 mx-auto" />
                               </div>
                             )}
                           </button>
@@ -155,18 +155,18 @@ export default function TrackerPage() {
                 
                 {/* Daily Totals Row */}
                 <tr className="bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-700 dark:to-gray-600 border-t-2 border-gray-200 dark:border-gray-600">
-                  <td className="p-4 font-bold text-gray-900 dark:text-white">
+                  <td className="p-4 font-bold max-md:text-xs   text-gray-900 dark:text-white">
                     Daily Totals
                   </td>
                   {dates.map(date => {
                     const totals = getDayTotals(date);
                     return (
-                      <td key={date} className="p-4 text-center">
-                        <div className="text-sm font-semibold">
+                      <td key={date} className=" pl-3 pr-1 py-5 max-md:text-xs text-center">
+                        <div className="font-semibold">
                           <div className="text-gray-900 dark:text-white">
                             {totals.calories} cal
                           </div>
-                          <div className="text-gray-600 dark:text-gray-300">
+                          <div className="text-gray-900 dark:text-gray-300">
                             {totals.protein}g protein
                           </div>
                         </div>
@@ -188,7 +188,7 @@ export default function TrackerPage() {
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
               No food items yet
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-gray-700 dark:text-gray-400 mb-4">
               Add your first food item to start tracking your nutrition
             </p>
             <Button

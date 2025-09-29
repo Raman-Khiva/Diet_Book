@@ -4,6 +4,8 @@ import { AppProvider } from '@/lib/context/AppContext';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import Navigation from '@/components/Navigation';
 import ReduxProvider from '@/components/providers/ReduxProvider';
+import "./globals.css";
+
 
 const inter = Inter({ subsets: ['latin'] });
 
