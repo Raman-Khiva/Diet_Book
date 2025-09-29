@@ -32,6 +32,8 @@ import {
   CardContent,
   CardFooter,
 } from '@/components/ui/card';
+import { useAppDispatch } from '@/lib/redux/hooks';
+import { googleRegister } from '@/lib/redux/slices/authSlice';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address.'),
@@ -43,13 +45,14 @@ export type LoginFormValues = z.infer<typeof loginSchema>;
 interface LoginProps {
   redirectTo?: string;
   onSuccess?: (user: User) => void;
+  onToggle?: () => void;
 }
 
-const LoginForm = ({ redirectTo, onSuccess }: LoginProps) => {
+const LoginForm = ({ redirectTo = '/tracker', onSuccess, onToggle }: LoginProps) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-
+  const dispatch = useAppDispatch();
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -65,9 +68,7 @@ const LoginForm = ({ redirectTo, onSuccess }: LoginProps) => {
     });
 
     onSuccess?.(user);
-    if (redirectTo) {
-      router.push(redirectTo);
-    }
+    router.push(redirectTo);
   };
 
   const onSubmit = async (values: LoginFormValues) => {
@@ -97,13 +98,12 @@ const LoginForm = ({ redirectTo, onSuccess }: LoginProps) => {
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
     try {
-      const provider = new GoogleAuthProvider();
-      const credentials = await signInWithPopup(auth, provider);
-      handleSuccess(credentials.user);
+      const result = await dispatch(googleRegister()).unwrap();
+      handleSuccess(result.user);
     } catch (error: unknown) {
       const message =
-        error && typeof error === 'object' && 'message' in error
-          ? String((error as { message: string }).message)
+        error && typeof error === 'object' && 'error' in error
+          ? String((error as { error?: string }).error ?? 'Google sign-in failed. Please try again.')
           : 'Google sign-in failed. Please try again.';
       toast({
         title: 'Google sign-in failed',
@@ -171,6 +171,18 @@ const LoginForm = ({ redirectTo, onSuccess }: LoginProps) => {
         >
           {isGoogleLoading ? 'Connecting…' : 'Continue with Google'}
         </Button>
+        {onToggle ? (
+          <p className="text-center text-sm text-muted-foreground">
+            Don't have an account?{' '}
+            <button
+              type="button"
+              onClick={onToggle}
+              className="font-medium text-primary hover:underline"
+            >
+              Sign up
+            </button>
+          </p>
+        ) : null}
       </CardFooter>
     </Card>
   );

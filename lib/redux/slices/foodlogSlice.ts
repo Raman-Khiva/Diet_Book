@@ -13,10 +13,14 @@ export type FoodEntry = {
 
 export interface FoodLogState {
   entries: FoodEntry[];
+  loading: boolean;
+  error: string | null;
 }
 
 const initialState: FoodLogState = {
   entries: [],
+  loading: false,
+  error: null,
 };
 
 const foodlogSlice = createSlice({

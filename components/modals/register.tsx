@@ -1,4 +1,3 @@
-'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -7,8 +6,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   createUserWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup,
   updateProfile,
   User,
 } from 'firebase/auth';
@@ -33,6 +30,8 @@ import {
   CardContent,
   CardFooter,
 } from '@/components/ui/card';
+import { googleRegister } from '@/lib/redux/slices/authSlice';
+import { useAppDispatch } from '@/lib/redux/hooks';
 
 const registerSchema = z
   .object({
@@ -51,13 +50,14 @@ export type RegisterFormValues = z.infer<typeof registerSchema>;
 interface RegisterProps {
   redirectTo?: string;
   onSuccess?: (user: User) => void;
+  onToggle?: () => void;
 }
 
-const RegisterForm = ({ redirectTo, onSuccess }: RegisterProps) => {
+const RegisterForm = ({ redirectTo = '/tracker', onSuccess, onToggle }: RegisterProps) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-
+  const dispatch = useAppDispatch();
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -75,9 +75,7 @@ const RegisterForm = ({ redirectTo, onSuccess }: RegisterProps) => {
     });
 
     onSuccess?.(user);
-    if (redirectTo) {
-      router.push(redirectTo);
-    }
+    router.push(redirectTo);
   };
 
   const onSubmit = async (values: RegisterFormValues) => {
@@ -114,13 +112,12 @@ const RegisterForm = ({ redirectTo, onSuccess }: RegisterProps) => {
   const handleGoogleSignUp = async () => {
     setIsGoogleLoading(true);
     try {
-      const provider = new GoogleAuthProvider();
-      const credentials = await signInWithPopup(auth, provider);
-      handleSuccess(credentials.user);
+      const result = await dispatch(googleRegister()).unwrap();
+      handleSuccess(result.user);
     } catch (error: unknown) {
       const message =
-        error && typeof error === 'object' && 'message' in error
-          ? String((error as { message: string }).message)
+        error && typeof error === 'object' && 'error' in error
+          ? String((error as { error?: string }).error ?? 'Google sign-up failed. Please try again.')
           : 'Google sign-up failed. Please try again.';
       toast({
         title: 'Google sign-up failed',
@@ -214,6 +211,18 @@ const RegisterForm = ({ redirectTo, onSuccess }: RegisterProps) => {
         >
           {isGoogleLoading ? 'Connecting…' : 'Sign up with Google'}
         </Button>
+        {onToggle ? (
+          <p className="text-center text-sm text-muted-foreground">
+            Already have an account?{' '}
+            <button
+              type="button"
+              onClick={onToggle}
+              className="font-medium text-primary hover:underline"
+            >
+              Sign in
+            </button>
+          </p>
+        ) : null}
       </CardFooter>
     </Card>
   );

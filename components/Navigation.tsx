@@ -2,14 +2,49 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Chrome as Home, Activity, Target, Moon, Sun } from 'lucide-react';
+import { Chrome as Home, Activity, Target, Moon, Sun, User as UserIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { cn } from '@/lib/utils';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks';
+import { logout } from '@/lib/redux/slices/authSlice';
+import { signOut } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
 
 export default function Navigation() {
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => state.auth.user);
+
+  const initials =
+    typeof user?.displayName === 'string' && user.displayName.trim().length > 0
+      ? user.displayName
+          .trim()
+          .split(/\s+/)
+          .map((part: string) => part[0]?.toUpperCase())
+          .join('')
+          .slice(0, 2)
+      : user?.email?.[0]?.toUpperCase() ?? undefined;
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error('Error while signing out:', error);
+    } finally {
+      dispatch(logout());
+    }
+  };
 
   const navItems = [
     { href: '/', label: 'Home', icon: Home },
@@ -66,6 +101,46 @@ export default function Navigation() {
                 <Sun className="h-4 w-4" />
               )}
             </Button>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-9 w-9 rounded-full p-0">
+                    <Avatar className="h-9 w-9">
+                      {user.photoURL ? (
+                        <AvatarImage
+                          src={user.photoURL}
+                          alt={user.displayName ?? user.email ?? 'User'}
+                        />
+                      ) : (
+                        <AvatarFallback>
+                          {initials ?? <UserIcon className="h-4 w-4" />}
+                        </AvatarFallback>
+                      )}
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col space-y-1">
+                      <span className="text-sm font-medium">
+                        {user.displayName ?? 'DietTracker user'}
+                      </span>
+                      {user.email ? (
+                        <span className="text-xs text-muted-foreground truncate">
+                          {user.email}
+                        </span>
+                      ) : null}
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout}>Log out</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button size="sm" asChild>
+                <Link href="/auth">Login</Link>
+              </Button>
+            )}
           </div>
         </div>
 
