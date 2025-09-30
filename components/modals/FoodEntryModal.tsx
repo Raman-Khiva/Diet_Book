@@ -5,6 +5,10 @@ import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAppContext, FoodItem } from '@/lib/context/AppContext';
+import { useAppDispatch} from '@/lib/redux/hooks';
+import { selectUser } from '@/lib/redux/slices/authSlice';
+import { addFoodItemEntry } from '@/lib/redux/slices/foodlogSlice';
+import { useSelector } from 'react-redux';
 
 interface FoodEntryModalProps {
   isOpen: boolean;
@@ -15,6 +19,9 @@ interface FoodEntryModalProps {
 
 export default function FoodEntryModal({ isOpen, onClose, foodItem, date }: FoodEntryModalProps) {
   const { getFoodEntry, updateFoodEntry } = useAppContext();
+  const dispatch = useAppDispatch();
+  const user = useSelector(selectUser); 
+  const uid = user?.uid;
   const [amountInput, setAmountInput] = useState('0');
 
   const parsedAmount = parseFloat(amountInput);
@@ -46,6 +53,14 @@ export default function FoodEntryModal({ isOpen, onClose, foodItem, date }: Food
 
   const handleSave = () => {
     updateFoodEntry(foodItem.id, date, amount);
+    if (uid) {
+      dispatch(addFoodItemEntry({
+        uid,
+        itemName: foodItem.name,
+        date,
+        amount,
+      }));
+    }
     onClose();
   };
 

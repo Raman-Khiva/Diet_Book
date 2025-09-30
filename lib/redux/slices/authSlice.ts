@@ -1,6 +1,22 @@
-import { GoogleAuthProvider, signInWithPopup, type User } from 'firebase/auth';
 import { createAsyncThunk, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { auth } from '../../firebase';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { RootState } from '../store';
+
+interface User {
+    uid: string;
+    email: string | null;
+    displayName: string | null;
+    photoURL: string | null;
+
+}
+
+const emptyUser: User ={
+  uid : "",
+  email : "",
+  displayName : "",
+  photoURL : "",
+}
 
 export const googleRegister = createAsyncThunk<
   { user: User; token: string },
@@ -10,35 +26,42 @@ export const googleRegister = createAsyncThunk<
   'auth/googleRegister',
   async (_, { rejectWithValue }) => {
     try {
+      console.log('[auth/googleRegister] Starting Google sign-in flow');
       const provider = new GoogleAuthProvider();
       const res = await signInWithPopup(auth, provider);
 
       if (!res) {
+        console.error('[auth/googleRegister] Sign-in popup returned no result');
         return rejectWithValue({ error: 'Google Sign In failed' });
       }
 
       const token = await res.user.getIdToken();
-      console.warn("Token :",token );
-      console.warn("User : ",res.user);
-      console.warn("email : ",res.user.email);
-      console.warn("name : ",res.user.displayName);
-      console.warn("uid : ",res.user.uid);
-      return { user: res.user, token };
+
+      const user: User ={
+        uid : res.user.uid,
+        email : res.user.email,
+        displayName : res.user.displayName,
+        photoURL : res.user.photoURL        
+      }
+      console.log('[auth/googleRegister] Sign-in success', { user : user});
+      return { user: user, token: token };
     } catch (error) {
+      console.error('[auth/googleRegister] Sign-in failed', error);
       return rejectWithValue({ error: 'Google Sign In failed' });
     }
   }
 );
 
 interface AuthState {
-  
-  user: User | null;
+  isAuthed : boolean;  
+  user: User;
   token: string | null;
   loading: boolean;
   error: string | null;
 }
 const initialState: AuthState = {
-  user: null,
+  isAuthed : false,
+  user: emptyUser,
   token: null,
   loading: false,
   error: null,
@@ -48,31 +71,13 @@ const authSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: {
-        loginStart(state) {
-            state.error = null;
-            state.loading = true;
-        },
-        loginSuccess(state, action: PayloadAction<{ user: User; token: string }>) {
-            state.user = action.payload.user;
-            state.token = action.payload.token;
-            state.error = null;
-            state.loading = false;
-        },
-        loginFailure(state, action: PayloadAction<string | null>) {
-            state.error = action.payload ?? null;
-            state.loading = false;
-        },
-        logout(state) {
-            state.user = null;
-            state.token = null;
-            state.error = null;
-        },
-        setToken(state, action: PayloadAction<string | null>) {
-            state.token = action.payload;
-        },
-        setUser(state, action: PayloadAction<User | null>) {
-            state.user = action.payload;
-        },
+      logout : (state) => {
+        state.isAuthed = false;
+        state.user = emptyUser;
+        state.token = null;
+        state.loading = false;
+        state.error = null;
+      }
     },
     extraReducers: (builder) => {
         builder
@@ -82,6 +87,7 @@ const authSlice = createSlice({
             })
             .addCase(googleRegister.fulfilled, (state, action) => {
                 state.loading = false;
+                state.isAuthed = true;
                 state.user = action.payload.user;
                 state.token = action.payload.token;
                 state.error = null;
@@ -93,13 +99,13 @@ const authSlice = createSlice({
     },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout, setToken, setUser } = authSlice.actions;
-
-export const selectUser = (state: AuthState) => state.user;
-export const selectToken = (state: AuthState) => state.token;
-export const selectLoading = (state: AuthState) => state.loading;
-export const selectError = (state: AuthState) => state.error;
-
+export const { logout } = authSlice.actions;
+export const selectAuth    =  (state : RootState) => state.auth;
+export const selectToken   =  (state : RootState) => state.auth.token;
+export const selectLoading =  (state : RootState) => state.auth.loading; 
+export const selectError   =  (state : RootState) => state.auth.error;
+export const selectIsAuthed = (state : RootState) => state.auth.isAuthed;
+export const selectUser    =  (state : RootState) => state.auth.user;
 
 
 export default authSlice.reducer;

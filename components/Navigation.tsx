@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Chrome as Home, Activity, Target, Moon, Sun, User as UserIcon } from 'lucide-react';
+import {Chrome as Home, Activity, Target, Moon, Sun, User as UserIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { cn } from '@/lib/utils';
@@ -15,17 +15,18 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks';
-import { logout } from '@/lib/redux/slices/authSlice';
+
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout, selectIsAuthed, selectUser } from '@/lib/redux/slices/authSlice';
 
 export default function Navigation() {
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
-  const dispatch = useAppDispatch();
-  const user = useAppSelector((state) => state.auth.user);
-
+  const isAuthed = useSelector(selectIsAuthed); 
+  const user = useSelector(selectUser); 
+  const dispatch = useDispatch();
   const initials =
     typeof user?.displayName === 'string' && user.displayName.trim().length > 0
       ? user.displayName
@@ -41,8 +42,8 @@ export default function Navigation() {
       await signOut(auth);
     } catch (error) {
       console.error('Error while signing out:', error);
-    } finally {
-      dispatch(logout());
+    }finally{
+      dispatch(logout())
     }
   };
 
@@ -101,7 +102,7 @@ export default function Navigation() {
                 <Sun className="h-4 w-4" />
               )}
             </Button>
-            {user ? (
+            {isAuthed ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="h-9 w-9 rounded-full p-0">

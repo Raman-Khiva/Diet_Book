@@ -6,6 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAppContext } from '@/lib/context/AppContext';
+import { useAppDispatch } from '@/lib/redux/hooks';
+import { selectUser } from '@/lib/redux/slices/authSlice';
+import { addFoodItem as addFoodItemThunk } from '@/lib/redux/slices/foodlogSlice';
+import { useSelector } from 'react-redux';
 
 interface AddFoodModalProps {
   isOpen: boolean;
@@ -14,6 +18,9 @@ interface AddFoodModalProps {
 
 export default function AddFoodModal({ isOpen, onClose }: AddFoodModalProps) {
   const { addFoodItem } = useAppContext();
+  const user = useSelector(selectUser);
+  const uid = user?.uid;
+  const dispatch = useAppDispatch();
   const [formData, setFormData] = useState({
     name: '',
     referenceQuantity: '',
@@ -52,7 +59,10 @@ export default function AddFoodModal({ isOpen, onClose }: AddFoodModalProps) {
 
     const caloriesPerUnit = parsedReferenceCalories / parsedReferenceQuantity;
     const proteinPerUnit = parsedReferenceProtein / parsedReferenceQuantity;
-
+    
+    if (uid) {
+      dispatch(addFoodItemThunk({ uid, itemName: formData.name }));
+    }
     addFoodItem({
       name: formData.name,
       caloriesPerUnit,

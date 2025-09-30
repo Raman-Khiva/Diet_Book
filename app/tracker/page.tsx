@@ -6,12 +6,16 @@ import { Button } from '@/components/ui/button';
 import { useAppContext } from '@/lib/context/AppContext';
 import FoodEntryModal from '@/components/modals/FoodEntryModal';
 import AddFoodModal from '@/components/modals/AddFoodModal';
+import { useSelector } from 'react-redux';
+import { selectIsAuthed, selectLoading, selectUser } from '@/lib/redux/slices/authSlice';
+import { redirect } from 'next/navigation';
 
 export default function TrackerPage() {
   const { foodItems, getFoodEntry, getDayTotals } = useAppContext();
   const [selectedFood, setSelectedFood] = useState<{ foodId: string; date: string } | null>(null);
   const [showAddFood, setShowAddFood] = useState(false);
-
+  const loading = useSelector(selectLoading);
+  const isAuthed = useSelector(selectIsAuthed);
   const formatQuantity = (value: number) => {
     if (!Number.isFinite(value)) {
       return '0';
@@ -55,6 +59,11 @@ export default function TrackerPage() {
   const selectedFoodItem = selectedFood 
     ? foodItems.find(item => item.id === selectedFood.foodId)
     : null;
+  
+  if(!isAuthed && !loading){
+    return redirect('/auth');
+  }
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pt-20">
@@ -98,7 +107,8 @@ export default function TrackerPage() {
                 </tr>
               </thead>
               <tbody>
-                {foodItems.map((food, index) => (
+                             
+                {!isAuthed && foodItems.map((food, index) => (
                   <tr 
                     key={food.id}
                     className={`border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors ${
@@ -113,7 +123,7 @@ export default function TrackerPage() {
                         <div className="text-md max-md:text-[10px] max-md:leading-tight text-gray-500 dark:text-gray-400">
                           {formatQuantity(food.referenceCalories ?? food.caloriesPerUnit)} cal, {formatQuantity(food.referenceProtein ?? food.proteinPerUnit)}g protein <br/>per {formatQuantity(food.referenceQuantity ?? 1)} {food.unit}
                         </div>
-                      </div>
+                    </div>
                     </td>
                     {dates.map(date => {
                       const entry = getFoodEntry(food.id, date);
@@ -213,6 +223,7 @@ export default function TrackerPage() {
       )}
 
       <AddFoodModal
+      
         isOpen={showAddFood}
         onClose={() => setShowAddFood(false)}
       />
