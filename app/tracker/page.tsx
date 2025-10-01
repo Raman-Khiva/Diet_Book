@@ -9,7 +9,7 @@ import AddFoodModal from '@/components/modals/AddFoodModal';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAuthLoading, selectIsAuthed,selectUser } from '@/lib/redux/slices/authSlice';
 import {useRouter } from 'next/navigation';
-import { fetchFoodItemsByUser, selectFoodItems, selectFoodLogLoading } from '@/lib/redux/slices/foodlogSlice';
+import { fetchFoodItemsByUser, selectDateEntries, selectFoodItems, selectFoodLogLoading } from '@/lib/redux/slices/foodlogSlice';
 
 export default function TrackerPage() {
   const { foodItems, getFoodEntry, getDayTotals } = useAppContext();
@@ -20,6 +20,7 @@ export default function TrackerPage() {
   const user = useSelector(selectUser);
   const isAuthed = useSelector(selectIsAuthed);
   let foodItemsList = useSelector(selectFoodItems);
+  const dateEntries = useSelector(selectDateEntries) || [];
   const router = useRouter();
   const dispatch = useDispatch();
 
@@ -197,7 +198,7 @@ export default function TrackerPage() {
                     </div>
                     </td>
                     {dates.map(date => {
-                      const entry = getFoodEntry(foodItem.id, date);
+                      const entry = dateEntries.find(entry => entry.date === date && entry.foodItemId === foodItem.id);
                       const amount = entry?.amount || 0;
                       
                       return (
@@ -219,7 +220,7 @@ export default function TrackerPage() {
                                   {formatQuantity(amount)}{foodItem.unit}
                                 </div>
                                 <div className="text-md max-md:text-[10px] font-[500] text-blue-600 dark:text-blue-400">
-                                  {Math.round((foodItem.calories/foodItem.refAmt) * amount)} cal · {formatQuantity(amount *(foodItem.protein/foodItem.refAmt))} g
+                                  {Math.round((foodItem.calPerUnit * amount))} cal · {formatQuantity(amount * foodItem.proteinPerUnit)} g
                                 </div>
                               </div>
                             ) : (
@@ -240,7 +241,15 @@ export default function TrackerPage() {
                     Daily Totals
                   </td>
                   {dates.map(date => {
-                    const totals = getDayTotals(date);
+                    
+                    const totals = dateEntries.filter(entry => entry.date === date).reduce((acc, entry) => {
+                      const foodItem = foodItemsList.find(item => item.id === entry.foodItemId);
+                      acc.calories += entry.amount * (foodItem?.calPerUnit ?? 0);
+                      acc.protein += entry.amount * (foodItem?.proteinPerUnit ?? 0);
+                      return acc;
+                    }, { calories: 0, protein: 0 });
+
+                    
                     return (
                       <td key={date} className=" pl-3 pr-1 py-5 max-md:text-xs text-center">
                         <div className="font-semibold">

@@ -30,6 +30,8 @@ export const addFoodItem = createAsyncThunk<
         refAmt : refAmt,
         calories : calories,
         protein : protein,
+        calPerUnit : calories / refAmt,
+        proteinPerUnit : protein / refAmt,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
 
@@ -45,6 +47,8 @@ export const addFoodItem = createAsyncThunk<
         refAmt : refAmt,
         calories : calories,
         protein : protein,
+        calPerUnit : calories / refAmt,
+        proteinPerUnit : protein / refAmt,
 
     }
     return {newItem}
@@ -129,7 +133,9 @@ export const addDateToFoodItem = createAsyncThunk<
                 amount : amount
               },{merge: true});
               const addedDateEntry : DateEntry = {foodItemId, date, amount};
-              return {addedDateEntry};
+              return {
+                addedDateEntry : addedDateEntry
+              };
             }catch(err){
               return rejectWithValue(
                 "Error while adding log to foodItem"
@@ -150,9 +156,13 @@ export type FoodItem = {
   name: string;
   unit: string;
   refAmt: number;
+  calPerUnit : number;
+  proteinPerUnit : number;
   calories: number;
   protein: number;
 };
+
+
 
 export interface FoodLogState {
   foodItems: FoodItem[];
@@ -160,6 +170,7 @@ export interface FoodLogState {
   loading: boolean;
   error: string | null;
 }
+
 
 const initialState: FoodLogState = {
   foodItems: [],
@@ -192,7 +203,7 @@ export const fetchFoodItemsByUser = createAsyncThunk<
       for(const foodItem of foodItems){
         const dateEntriesRef = collection(db,'users',uid,'foodItems',foodItem.id,'dates');
         const querySnapshot = await getDocs(dateEntriesRef);
-        dateEntries.push(...querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        dateEntries.push(...querySnapshot.docs.map(doc => ({foodItemId: foodItem.id, id: doc.id, ...doc.data() })));
       }
       return {
         foodItems,
@@ -249,8 +260,19 @@ const foodlogSlice = createSlice({
         state.loading = false;
         state.error = action.payload ?? 'Failed to add food item.';
       })
-      
 
+      .addCase(addDateToFoodItem.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addDateToFoodItem.fulfilled, (state, action) => {
+        state.loading = false;
+        state.dateEntries.push(action.payload.addedDateEntry);
+      })
+      .addCase(addDateToFoodItem.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload ?? 'Failed to add date to food item.';
+      })
   },
 });
 
