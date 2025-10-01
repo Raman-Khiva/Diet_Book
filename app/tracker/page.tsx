@@ -6,13 +6,14 @@ import { Button } from '@/components/ui/button';
 import { useAppContext } from '@/lib/context/AppContext';
 import FoodEntryModal from '@/components/modals/FoodEntryModal';
 import AddFoodModal from '@/components/modals/AddFoodModal';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { selectAuthLoading, selectIsAuthed,selectUser } from '@/lib/redux/slices/authSlice';
 import {useRouter } from 'next/navigation';
 import { fetchFoodItemsByUser, selectDateEntries, selectFoodItems, selectFoodLogLoading } from '@/lib/redux/slices/foodlogSlice';
+import { useAppDispatch } from '@/lib/redux/hooks';
 
 export default function TrackerPage() {
-  const { foodItems, getFoodEntry, getDayTotals } = useAppContext();
+  const { foodItems } = useAppContext();
   const [selectedFood, setSelectedFood] = useState<{ foodItemId: string; date: string } | null>(null);
   const [showAddFood, setShowAddFood] = useState(false);
   const authLoading = useSelector(selectAuthLoading);
@@ -22,7 +23,7 @@ export default function TrackerPage() {
   let foodItemsList = useSelector(selectFoodItems);
   const dateEntries = useSelector(selectDateEntries) || [];
   const router = useRouter();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   foodItemsList = foodItemsList || [];
 
@@ -57,8 +58,7 @@ export default function TrackerPage() {
       console.log('[TrackerPage] Dispatching fetchFoodItemsByUser', { uid });
       if(isAuthed && !foodLogLoading){
   try {
-        const action = await dispatch(fetchFoodItemsByUser({ uid }));
-        
+         dispatch(fetchFoodItemsByUser({ uid }));
       } catch (error) {
         console.error('[TrackerPage] Unexpected error dispatching fetch', error);
       }

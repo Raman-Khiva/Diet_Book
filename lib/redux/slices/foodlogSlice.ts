@@ -2,7 +2,7 @@ import { createSlice, PayloadAction, nanoid, createAsyncThunk } from '@reduxjs/t
 import { collection, deleteDoc, doc, getDocs, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { RootState } from '../store';
-import { Users } from 'lucide-react';
+
 
 export const addFoodItem = createAsyncThunk<
   {newItem : FoodItem},
@@ -178,32 +178,46 @@ const initialState: FoodLogState = {
   loading: false,
   error: null,
 };
+
+
 export const fetchFoodItemsByUser = createAsyncThunk<
   { foodItems: FoodItem[],dateEntries : DateEntry[] },
   { uid: string },
   { rejectValue: string }
 >(
   'foodlog/fetchFoodItemsByUser',
-  async ({ uid }, { rejectWithValue }) => {
+  async ( {uid} , { rejectWithValue }) => {
     try {
       console.log('[foodlog/fetchFoodItemsByUser] Fetching items for user', { uid });
       const foodItemsRef = collection(db, 'users', uid, 'foodItems');
       const querySnapshot = await getDocs(foodItemsRef);
       if (querySnapshot.empty) {
         console.warn('[foodlog/fetchFoodItemsByUser] No food items found for user', { uid });
-        return { foodItems: [] };
+        const foodItems : FoodItem[] = [];
+        const dateEntries : DateEntry[] = []
+        return { foodItems: foodItems, dateEntries : dateEntries };
       }
-      const foodItems = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const foodItems : FoodItem[] = querySnapshot
+                                         .docs.map(doc => ({
+                                           id: doc.id,  
+                                           name: doc.data().name,
+                                           unit: doc.data().unit,
+                                           refAmt: doc.data().refAmt,
+                                           calPerUnit : doc.data().calPerUnit,
+                                           proteinPerUnit : doc.data().proteinPerUnit,
+                                           calories: doc.data().calories,
+                                           protein: doc.data().protein
+                                         }));
       console.log('[foodlog/fetchFoodItemsByUser] Retrieved food items', {
         count: foodItems.length,
         ids: foodItems.map(item => item.id),
       });
-      const dateEntries = [];
+      const dateEntries : DateEntry[] = [];
 
       for(const foodItem of foodItems){
         const dateEntriesRef = collection(db,'users',uid,'foodItems',foodItem.id,'dates');
         const querySnapshot = await getDocs(dateEntriesRef);
-        dateEntries.push(...querySnapshot.docs.map(doc => ({foodItemId: foodItem.id, id: doc.id, ...doc.data() })));
+        dateEntries.push(...querySnapshot.docs.map(doc => ({foodItemId: foodItem.id, date: doc.id, amount: doc.data().amount })));
       }
       return {
         foodItems,
@@ -211,10 +225,7 @@ export const fetchFoodItemsByUser = createAsyncThunk<
       };
     } catch (error) {
       console.error('[foodlog/fetchFoodItemsByUser] Failed to fetch items', error);
-      const message =
-        error && typeof error === 'object' && 'message' in error
-          ? String((error as { message: string }).message)
-          : 'Failed to fetch food items.';
+      const message = 'Failed to fetch food items.';
       return rejectWithValue(message);
     }
   }
