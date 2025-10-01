@@ -4,20 +4,20 @@ import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useAppContext, FoodItem } from '@/lib/context/AppContext';
+import { useAppContext, foodItemId } from '@/lib/context/AppContext';
 import { useAppDispatch} from '@/lib/redux/hooks';
 import { selectUser } from '@/lib/redux/slices/authSlice';
-import { addFoodItemEntry } from '@/lib/redux/slices/foodlogSlice';
+import { addDateToFoodItem, addDateTofoodItemId, addfoodItemIdEntry } from '@/lib/redux/slices/foodlogSlice';
 import { useSelector } from 'react-redux';
 
 interface FoodEntryModalProps {
   isOpen: boolean;
   onClose: () => void;
-  foodItem: FoodItem;
+  foodItemId: foodItemId;
   date: string;
 }
 
-export default function FoodEntryModal({ isOpen, onClose, foodItem, date }: FoodEntryModalProps) {
+export default function FoodEntryModal({ isOpen, onClose, foodItemId, date }: FoodEntryModalProps) {
   const { getFoodEntry, updateFoodEntry } = useAppContext();
   const dispatch = useAppDispatch();
   const user = useSelector(selectUser); 
@@ -45,34 +45,33 @@ export default function FoodEntryModal({ isOpen, onClose, foodItem, date }: Food
 
   useEffect(() => {
     if (isOpen) {
-      const entry = getFoodEntry(foodItem.id, date);
+      const entry = getFoodEntry(foodItemId, date);
       const entryAmount = entry?.amount ?? 0;
       setAmountInput(entryAmount.toString());
     }
-  }, [isOpen, foodItem.id, date, getFoodEntry]);
+  }, [isOpen, foodItemId, date, getFoodEntry]);
 
   const handleSave = () => {
-    updateFoodEntry(foodItem.id, date, amount);
+    updateFoodEntry(foodItemId, date, amount);
     if (uid) {
-      dispatch(addFoodItemEntry({
+      dispatch(addDateToFoodItem({
         uid,
-        itemName: foodItem.name,
+        foodItemId: foodItemId,
         date,
-        amount,
-      }));
+        amount}));
     }
     onClose();
   };
 
   if (!isOpen) return null;
 
-  const unitLabel = foodItem.unit || 'unit';
-  const referenceQuantity = foodItem.referenceQuantity ?? 1;
-  const referenceCalories = foodItem.referenceCalories ?? foodItem.caloriesPerUnit * referenceQuantity;
-  const referenceProtein = foodItem.referenceProtein ?? foodItem.proteinPerUnit * referenceQuantity;
+  const unitLabel = foodItemId.unit || 'unit';
+  const referenceQuantity = foodItemId.referenceQuantity ?? 1;
+  const referenceCalories = foodItemId.referenceCalories ?? foodItemId.caloriesPerUnit * referenceQuantity;
+  const referenceProtein = foodItemId.referenceProtein ?? foodItemId.proteinPerUnit * referenceQuantity;
 
-  const totalCalories = Math.round(foodItem.caloriesPerUnit * amount * 100) / 100;
-  const totalProtein = Math.round(foodItem.proteinPerUnit * amount * 100) / 100;
+  const totalCalories = Math.round(foodItemId.caloriesPerUnit * amount * 100) / 100;
+  const totalProtein = Math.round(foodItemId.proteinPerUnit * amount * 100) / 100;
   const formattedAmount = formatQuantity(amount);
   const referenceSummary = `${formatQuantity(referenceQuantity)} ${unitLabel}`;
   const totalReferenceQuantity = amount * referenceQuantity;
@@ -88,7 +87,7 @@ export default function FoodEntryModal({ isOpen, onClose, foodItem, date }: Food
         <div className="flex justify-between items-start mb-4">
           <div>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-              {foodItem.name}
+              {foodItemId.name}
             </h2>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               {new Date(date).toLocaleDateString('en-US', { 
@@ -129,7 +128,7 @@ export default function FoodEntryModal({ isOpen, onClose, foodItem, date }: Food
               </div>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
-              Per 1 {unitLabel}: {formatNumber(foodItem.caloriesPerUnit)} cal, {formatNumber(foodItem.proteinPerUnit)}g protein.
+              Per 1 {unitLabel}: {formatNumber(foodItemId.caloriesPerUnit)} cal, {formatNumber(foodItemId.proteinPerUnit)}g protein.
             </p>
           </div>
 

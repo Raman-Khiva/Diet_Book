@@ -1,11 +1,14 @@
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   createUserWithEmailAndPassword,
+  getRedirectResult,
+  GoogleAuthProvider,
+  signInWithRedirect,
   updateProfile,
   User,
 } from 'firebase/auth';
@@ -30,7 +33,7 @@ import {
   CardContent,
   CardFooter,
 } from '@/components/ui/card';
-import { googleRegister } from '@/lib/redux/slices/authSlice';
+import { googleRedirectSignIn, googleRegister } from '@/lib/redux/slices/authSlice';
 import { useAppDispatch } from '@/lib/redux/hooks';
 
 const registerSchema = z
@@ -67,18 +70,61 @@ const RegisterForm = ({ redirectTo = '/tracker', onSuccess, onToggle }: Register
       confirmPassword: '',
     },
   });
+  interface User{
+    uid : string;
+    email : string | null;
+    displayName : string | null;
+    photoURL : string | null;
+  }
+  useEffect(()=>{
+    console.log('[Register] useEffect mounted - checking redirect result');
+    const handleGoogleRedirect = async () => {
+      try{
+        console.log('[Register] Awaiting getRedirectResult');
+        const result = await getRedirectResult(auth);
+        console.log('[Register] getRedirectResult returned:', result);
+        if(result){
+          const user : User = {
+            uid : result.user.uid,
+            email : result.user.email,
+            displayName : result.user.displayName,
+            photoURL : result.user.photoURL
+          }
+          console.log('[Register] Redirect result user constructed:', user);
+          const token = await result.user.getIdToken();
+          console.log('[Register] Redirect result token acquired');
+          dispatch(googleRedirectSignIn({user,token}));
+          console.log('[Register] Dispatched googleRedirectSignIn');
+          handleSuccess(user);
+        }
+      }catch (error) {
+      console.error("Redirect sign-in failed:", error);
+      toast({
+        title: "Google sign-in failed",
+        description: "Something went wrong. Please try again.",
+      });
+      }finally{
+        console.log('[Register] Redirect handling complete, stopping Google loading');
+        setIsGoogleLoading(false);
+      } 
+     }   
+     handleGoogleRedirect();
+  },[dispatch])
 
   const handleSuccess = (user: User) => {
+    console.log('[Register] handleSuccess invoked for user:', user.uid);
     toast({
       title: 'Welcome aboard! 🎉',
       description: `Account created for ${user.email ?? 'your email'}.`,
     });
 
-    onSuccess?.(user);
+
+    console.log('[Register] Navigating to redirect path:', redirectTo);
     router.push(redirectTo);
   };
 
   const onSubmit = async (values: RegisterFormValues) => {
+    console.log('[Register] onSubmit called with values:', values);
     setIsLoading(true);
     try {
       const credentials = await createUserWithEmailAndPassword(
@@ -86,8 +132,10 @@ const RegisterForm = ({ redirectTo = '/tracker', onSuccess, onToggle }: Register
         values.email,
         values.password
       );
+      console.log('[Register] Email/password registration success:', credentials.user.uid);
 
       if (values.name.trim().length > 0) {
+        console.log('[Register] Updating profile with display name:', values.name.trim());
         await updateProfile(credentials.user, {
           displayName: values.name.trim(),
         });
@@ -95,7 +143,9 @@ const RegisterForm = ({ redirectTo = '/tracker', onSuccess, onToggle }: Register
 
       handleSuccess(credentials.user);
       form.reset();
+      console.log('[Register] Form reset after successful registration');
     } catch (error: unknown) {
+      console.error('[Register] Registration failed:', error);
       const message =
         error && typeof error === 'object' && 'message' in error
           ? String((error as { message: string }).message)
@@ -105,16 +155,32 @@ const RegisterForm = ({ redirectTo = '/tracker', onSuccess, onToggle }: Register
         description: message,
       });
     } finally {
+      console.log('[Register] onSubmit finally - stopping loading');
       setIsLoading(false);
     }
   };
 
+  
+
   const handleGoogleSignUp = async () => {
+    console.log('[Register] handleGoogleSignUp triggered');
     setIsGoogleLoading(true);
+    const provider = new GoogleAuthProvider();
     try {
-      const result = await dispatch(googleRegister()).unwrap();
-      handleSuccess(result.user);
+      if(/Mobi|Android|iPhone/i.test(navigator.userAgent)){
+        console.log('[Register] Mobile device detected, using signInWithRedirect');
+        await signInWithRedirect(auth,provider)
+      }
+      else{
+        console.log('[Register] Desktop environment, dispatching googleRegister');
+        const result = await dispatch(googleRegister()).unwrap();
+        handleSuccess(result.user);
+        console.log('[Register] Google popup sign-up success');
+        setIsGoogleLoading(false);  
+      }
     } catch (error: unknown) {
+      console.error('[Register] Google sign-up failed:', error);
+      setIsGoogleLoading(false);
       const message =
         error && typeof error === 'object' && 'error' in error
           ? String((error as { error?: string }).error ?? 'Google sign-up failed. Please try again.')
@@ -123,9 +189,7 @@ const RegisterForm = ({ redirectTo = '/tracker', onSuccess, onToggle }: Register
         title: 'Google sign-up failed',
         description: message,
       });
-    } finally {
-      setIsGoogleLoading(false);
-    }
+    } 
   };
 
   return (

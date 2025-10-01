@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -8,8 +8,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import {
   signInWithEmailAndPassword,
   GoogleAuthProvider,
-  signInWithPopup,
   User,
+  signInWithRedirect,
+  getRedirectResult,
 } from 'firebase/auth';
 
 import { auth } from '@/lib/firebase';
@@ -60,6 +61,38 @@ const LoginForm = ({ redirectTo = '/tracker', onSuccess, onToggle }: LoginProps)
       password: '',
     },
   });
+  
+  interface User{
+      uid : string;
+      email : string | null;
+      displayName : string | null;
+      photoURL : string | null;
+    }
+  useEffect(() => {
+     const handleGoogleRedirect = async () =>{
+      try{
+        const result = await getRedirectResult(auth);
+        if(result){
+          const user : User = {
+            uid : result.user.uid,
+            email : result.user.email,
+            displayName : result.user.displayName,
+            photoURL : result.user.photoURL
+          }
+          const token = await result.user.getIdToken();
+          dispatch(googleRegister.fulfilled({user,token}));
+          handleSuccess(user);
+        }
+      }catch (error) {
+      console.error("Redirect sign-in failed:", error);
+      toast({
+        title: "Google sign-in failed",
+        description: "Something went wrong. Please try again.",
+      });
+    }
+     }   
+     handleGoogleRedirect();
+  },[dispatch])
 
   const handleSuccess = (user: User) => {
     toast({
@@ -67,7 +100,7 @@ const LoginForm = ({ redirectTo = '/tracker', onSuccess, onToggle }: LoginProps)
       description: `Signed in as ${user.email ?? 'your account'}.`,
     });
 
-    onSuccess?.(user);
+    
     router.push(redirectTo);
   };
 
@@ -97,7 +130,11 @@ const LoginForm = ({ redirectTo = '/tracker', onSuccess, onToggle }: LoginProps)
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
+    const provider = new GoogleAuthProvider();
     try {
+      if(/mobi|Android|iPhone/i.test(navigator.userAgent)){
+        await signInWithRedirect(auth,provider)
+      }
       const result = await dispatch(googleRegister()).unwrap();
       handleSuccess(result.user);
     } catch (error: unknown) {

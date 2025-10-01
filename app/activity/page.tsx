@@ -1,16 +1,57 @@
 'use client';
 
-import { useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { useEffect, useMemo, useState } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Line } from 'recharts';
 import { TrendingUp, Target, Calendar, Award, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAppContext } from '@/lib/context/AppContext';
 import SettingsModal from '@/components/modals/SettingsModal';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { useSelector } from 'react-redux';
+import { selectUser } from '@/lib/redux/slices/authSlice';
+
+type FoodItemRow = {
+  id: string;
+  name: string;
+  calories: number | null;
+  protein: number | null;
+  updatedAt: Date | null;
+};
+
+function formatNumber(value?: number | null): string {
+  if (value === null || value === undefined || Number.isNaN(value)) {
+    return '-';
+  }
+
+  const rounded = Math.round(value * 10) / 10;
+  return Number.isInteger(rounded) ? rounded.toString() : rounded.toFixed(1);
+}
+
+function formatUpdatedAt(date?: Date | null): string {
+  if (!date) return '—';
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(date);
+}
 
 export default function ActivityPage() {
   const { getWeeklyStats, userSettings } = useAppContext();
   const [viewMode, setViewMode] = useState<'calories' | 'protein'>('calories');
   const [showSettings, setShowSettings] = useState(false);
+  const user = useSelector(selectUser);
+  const [foodItems, setFoodItems] = useState<FoodItemRow[]>([]);
+  const [foodItemsLoading, setFoodItemsLoading] = useState(false);
+  const [foodItemsError, setFoodItemsError] = useState<string | null>(null);
+  const formattedFoodItems = useMemo(() => foodItems.map(item => ({
+    ...item,
+    caloriesDisplay: formatNumber(item.calories),
+    proteinDisplay: formatNumber(item.protein),
+    lastUpdatedDisplay: formatUpdatedAt(item.updatedAt)
+  })), [foodItems]);
   
   const weeklyStats = getWeeklyStats();
   
@@ -65,6 +106,54 @@ export default function ActivityPage() {
       </g>
     );
   };
+
+  useEffect(() => {
+    const uid = user?.uid;
+    if (!uid) {
+      setFoodItems([]);
+      setFoodItemsLoading(false);
+      return;
+    }
+
+    const fetchFoodItems = async () => {
+      setFoodItemsLoading(true);
+      setFoodItemsError(null);
+
+      try {
+        const snapshot = await getDocs(collection(db, 'users', uid, 'foodItems'));
+        const items: FoodItemRow[] = snapshot.docs.map((docSnap) => {
+          const data = docSnap.data();
+          const updatedAt = data.updatedAt?.toDate?.() ?? null;
+          const calories = typeof data.calories === 'number' ? data.calories : Number(data.calories ?? 0);
+          const protein = typeof data.protein === 'number' ? data.protein : Number(data.protein ?? 0);
+
+          return {
+            
+            id: docSnap.id,
+            name: data.name ?? 'Untitled item',
+            calories: Number.isFinite(calories) ? calories : null,
+            protein: Number.isFinite(protein) ? protein : null,
+            updatedAt,
+          } satisfies FoodItemRow;
+        });
+
+        items.sort((a, b) => {
+          const timeA = a.updatedAt?.getTime() ?? 0;
+          const timeB = b.updatedAt?.getTime() ?? 0;
+          return timeB - timeA;
+        });
+
+        setFoodItems(items);
+      } catch (error) {
+        console.error('[ActivityPage] Failed to load food items:', error);
+        setFoodItemsError('Failed to load food items. Please try again later.');
+      } finally {
+        setFoodItemsLoading(false);
+      }
+    };
+
+    fetchFoodItems();
+  }, [user?.uid]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pt-20">
@@ -281,8 +370,62 @@ export default function ActivityPage() {
             </Button>
           </div>
         </div>
-      </div>
 
+        {/* Food Items Table */}
+        <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+          <div className="px-4 md:px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Saved Food Items</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Entries synced from your Firestore account</p>
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 dark:bg-gray-700/50 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">
+                <tr>
+                  <th className="px-4 md:px-6 py-3">Food Item</th>
+                  <th className="px-4 md:px-6 py-3">Calories</th>
+                  <th className="px-4 md:px-6 py-3">Protein</th>
+                  <th className="px-4 md:px-6 py-3">Last Updated</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                {foodItemsLoading ? (
+                  <tr>
+                    <td colSpan={4} className="px-4 md:px-6 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                      Loading food items…
+                    </td>
+                  </tr>
+                ) : foodItemsError ? (
+                  <tr>
+                    <td colSpan={4} className="px-4 md:px-6 py-6 text-center text-sm text-red-600 dark:text-red-400">
+                      {foodItemsError}
+                    </td>
+                  </tr>
+                ) : formattedFoodItems.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="px-4 md:px-6 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                      No food items found for your account yet.
+                    </td>
+                  </tr>
+                ) : (
+                  formattedFoodItems.map((item) => (
+                    <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                      <td className="px-4 md:px-6 py-4">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">{item.name}</p>
+                      </td>
+                      <td className="px-4 md:px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{item.caloriesDisplay !== '-' ? `${item.caloriesDisplay}` : '—'}</td>
+                      <td className="px-4 md:px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{item.proteinDisplay !== '-' ? `${item.proteinDisplay}` : '—'}</td>
+                      <td className="px-4 md:px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{item.lastUpdatedDisplay}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      
       <SettingsModal 
         isOpen={showSettings}
         onClose={() => setShowSettings(false)}

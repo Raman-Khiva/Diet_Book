@@ -61,7 +61,7 @@ export default function AddFoodModal({ isOpen, onClose }: AddFoodModalProps) {
     const proteinPerUnit = parsedReferenceProtein / parsedReferenceQuantity;
     
     if (uid) {
-      dispatch(addFoodItemThunk({ uid, itemName: formData.name }));
+      dispatch(addFoodItemThunk({ uid, itemName: formData.name, unit: formData.referenceUnit, refAmt: parsedReferenceQuantity, calories: parsedReferenceCalories, protein: parsedReferenceProtein }));
     }
     addFoodItem({
       name: formData.name,

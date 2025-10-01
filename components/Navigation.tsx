@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useMemo } from 'react';
 import {Chrome as Home, Activity, Target, Moon, Sun, User as UserIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/components/providers/ThemeProvider';
@@ -27,15 +28,18 @@ export default function Navigation() {
   const isAuthed = useSelector(selectIsAuthed); 
   const user = useSelector(selectUser); 
   const dispatch = useDispatch();
-  const initials =
-    typeof user?.displayName === 'string' && user.displayName.trim().length > 0
-      ? user.displayName
-          .trim()
-          .split(/\s+/)
-          .map((part: string) => part[0]?.toUpperCase())
-          .join('')
-          .slice(0, 2)
-      : user?.email?.[0]?.toUpperCase() ?? undefined;
+  const avatarSrc = useMemo(() => {
+    if (user?.photoURL) {
+      return user.photoURL;
+    }
+
+    const seed = user?.email ?? user?.displayName;
+    if (!seed) {
+      return undefined;
+    }
+
+    return `https://avatar.vercel.sh/${encodeURIComponent(seed)}.png?size=128`;
+  }, [user?.photoURL, user?.email, user?.displayName]);
 
   const handleLogout = async () => {
     try {
@@ -107,16 +111,15 @@ export default function Navigation() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="h-9 w-9 rounded-full p-0">
                     <Avatar className="h-9 w-9">
-                      {user.photoURL ? (
+                      {avatarSrc ? (
                         <AvatarImage
-                          src={user.photoURL}
-                          alt={user.displayName ?? user.email ?? 'User'}
+                          src={avatarSrc}
+                          alt={user?.displayName ?? user?.email ?? 'User'}
                         />
-                      ) : (
-                        <AvatarFallback>
-                          {initials ?? <UserIcon className="h-4 w-4" />}
-                        </AvatarFallback>
-                      )}
+                      ) : null}
+                      <AvatarFallback>
+                        <UserIcon className="h-4 w-4" />
+                      </AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>

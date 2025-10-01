@@ -1,27 +1,95 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAppContext } from '@/lib/context/AppContext';
 import FoodEntryModal from '@/components/modals/FoodEntryModal';
 import AddFoodModal from '@/components/modals/AddFoodModal';
-import { useSelector } from 'react-redux';
-import { selectIsAuthed, selectLoading, selectUser } from '@/lib/redux/slices/authSlice';
-import { redirect } from 'next/navigation';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectAuthLoading, selectIsAuthed,selectUser } from '@/lib/redux/slices/authSlice';
+import {useRouter } from 'next/navigation';
+import { fetchFoodItemsByUser, selectFoodItems, selectFoodLogLoading } from '@/lib/redux/slices/foodlogSlice';
 
 export default function TrackerPage() {
   const { foodItems, getFoodEntry, getDayTotals } = useAppContext();
-  const [selectedFood, setSelectedFood] = useState<{ foodId: string; date: string } | null>(null);
+  const [selectedFood, setSelectedFood] = useState<{ foodItemId: string; date: string } | null>(null);
   const [showAddFood, setShowAddFood] = useState(false);
-  const loading = useSelector(selectLoading);
+  const authLoading = useSelector(selectAuthLoading);
+  const foodLogLoading = useSelector(selectFoodLogLoading);
+  const user = useSelector(selectUser);
   const isAuthed = useSelector(selectIsAuthed);
-  const formatQuantity = (value: number) => {
+  let foodItemsList = useSelector(selectFoodItems);
+  const router = useRouter();
+  const dispatch = useDispatch();
+
+  foodItemsList = foodItemsList || [];
+
+  console.log('[TrackerPage] Render', {
+    isAuthed,
+    authLoading,
+    foodLogLoading,
+    userUid: user?.uid ?? null,
+    contextItems: foodItems.length,
+    storeItems: foodItemsList.length,
+  });
+
+
+  useEffect(() => {
+    console.log('[TrackerPage] Auth state changed', {
+      isAuthed,
+      authLoading,
+      foodLogLoading,
+      userUid: user?.uid ?? null,
+    });
+  }, [authLoading, foodLogLoading, isAuthed, user?.uid]);
+
+
+  useEffect(() => {
+    const uid = user?.uid;
+    if (!isAuthed || !uid) {
+      console.log('[TrackerPage] Skipping food item fetch', { isAuthed, uid: uid ?? null });
+      return;
+    }
+
+    const fetchItems = async () => {
+      console.log('[TrackerPage] Dispatching fetchFoodItemsByUser', { uid });
+      if(isAuthed && !foodLogLoading){
+  try {
+        const action = await dispatch(fetchFoodItemsByUser({ uid }));
+        
+      } catch (error) {
+        console.error('[TrackerPage] Unexpected error dispatching fetch', error);
+      }
+ 
+      }
+       };
+
+    void fetchItems();
+  }, [dispatch, isAuthed, user?.uid]);
+
+
+  if(!isAuthed && !authLoading){
+     console.log('[TrackerPage] User not authenticated, redirecting to /auth');
+    router.replace('/auth');
+    return null;
+  }
+  if(authLoading || foodLogLoading){
+    console.log('[TrackerPage] Showing loading state', { authLoading, foodLogLoading });
+    return (
+      <div className='h-screen w-full flex items-center justify-center'>
+        loading...
+      </div>
+    )
+  }
+
+
+  const formatQuantity = (value: number | null) => {
     if (!Number.isFinite(value)) {
       return '0';
     }
-    const fixed = value.toFixed(2);
-    return fixed.replace(/\.0+$/, '').replace(/\.(?=0*$)/, '');
+    const fixed = value?.toFixed(2);
+    return fixed?.replace(/\.0+$/, '').replace(/\.(?=0*$)/, '');
   };
 
   // Generate last 7 days
@@ -52,17 +120,20 @@ export default function TrackerPage() {
     });
   };
 
-  const handleCellClick = (foodId: string, date: string): void => {
-    setSelectedFood({ foodId, date });
+  const handleCellClick = (foodItemId: string, date: string): void => {
+    console.log('[TrackerPage] Cell clicked', { foodItemId, date });
+    setSelectedFood({ foodItemId, date });
   };
 
-  const selectedFoodItem = selectedFood 
-    ? foodItems.find(item => item.id === selectedFood.foodId)
-    : null;
-  
-  if(!isAuthed && !loading){
-    return redirect('/auth');
-  }
+  const handleOpenAddFood = () => {
+    console.log('[TrackerPage] Opening add food modal');
+    setShowAddFood(true);
+  };
+
+  const handleCloseAddFood = () => {
+    console.log('[TrackerPage] Closing add food modal');
+    setShowAddFood(false);
+  };
 
 
   return (
@@ -81,7 +152,7 @@ export default function TrackerPage() {
             </p>
           </div>
           <Button
-            onClick={() => setShowAddFood(true)}
+            onClick={handleOpenAddFood}
             className="bg-gradient-to-r p-2 max-md:text-xs from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 mt-4 md:mt-0"
           >
             <Plus className="h-3 w-3 mr-2" />
@@ -108,9 +179,9 @@ export default function TrackerPage() {
               </thead>
               <tbody>
                              
-                {!isAuthed && foodItems.map((food, index) => (
+                {isAuthed && foodItemsList.map((foodItem, index) => (
                   <tr 
-                    key={food.id}
+                    key={foodItem.id}
                     className={`border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors ${
                       index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/50 dark:bg-gray-700/20'
                     }`}
@@ -118,15 +189,15 @@ export default function TrackerPage() {
                     <td className="p-3">
                       <div>
                         <div className="font-[500] max-md:text-xs text-gray-900 mb-1 dark:text-white">
-                          {food.name}
+                          {foodItem.name}
                         </div>
                         <div className="text-md max-md:text-[10px] max-md:leading-tight text-gray-500 dark:text-gray-400">
-                          {formatQuantity(food.referenceCalories ?? food.caloriesPerUnit)} cal, {formatQuantity(food.referenceProtein ?? food.proteinPerUnit)}g protein <br/>per {formatQuantity(food.referenceQuantity ?? 1)} {food.unit}
+                          {formatQuantity(foodItem.calories)} cal, {formatQuantity(foodItem.protein)}g protein <br/>per {formatQuantity(foodItem.refAmt ?? 1)} {foodItem.unit}
                         </div>
                     </div>
                     </td>
                     {dates.map(date => {
-                      const entry = getFoodEntry(food.id, date);
+                      const entry = getFoodEntry(foodItem.id, date);
                       const amount = entry?.amount || 0;
                       
                       return (
@@ -135,7 +206,7 @@ export default function TrackerPage() {
                           className="p-1 text-center"
                         >
                           <button
-                            onClick={() => handleCellClick(food.id, date)}
+                            onClick={() => handleCellClick(foodItem.id, date)}
                             className={`w-full h-16 rounded-lg border-2 border-dashed transition-all duration-200 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 group ${
                               amount > 0 
                                 ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-300 dark:border-blue-600' 
@@ -145,10 +216,10 @@ export default function TrackerPage() {
                             {amount > 0 ? (
                               <div className="text-md max-md:text-xs space-y-1">
                                 <div className="font-semibold text-blue-700 dark:text-blue-300">
-                                  {formatQuantity(amount)}{food.unit}
+                                  {formatQuantity(amount)}{foodItem.unit}
                                 </div>
                                 <div className="text-md max-md:text-[10px] font-[500] text-blue-600 dark:text-blue-400">
-                                  {Math.round(food.caloriesPerUnit * amount)} cal · {formatQuantity(amount *food.proteinPerUnit)} g
+                                  {Math.round((foodItem.calories/foodItem.refAmt) * amount)} cal · {formatQuantity(amount *(foodItem.protein/foodItem.refAmt))} g
                                 </div>
                               </div>
                             ) : (
@@ -213,19 +284,21 @@ export default function TrackerPage() {
       </div>
 
       {/* Modals */}
-      {selectedFood && selectedFoodItem && (
+      {selectedFood && (
         <FoodEntryModal
           isOpen={!!selectedFood}
-          onClose={() => setSelectedFood(null)}
-          foodItem={selectedFoodItem}
+          onClose={() => {
+            console.log('[TrackerPage] Closing food entry modal');
+            setSelectedFood(null);
+          }}
+          foodItemId={selectedFood.foodItemId}
           date={selectedFood.date}
         />
-      )}
-
+        )}
       <AddFoodModal
       
         isOpen={showAddFood}
-        onClose={() => setShowAddFood(false)}
+        onClose={handleCloseAddFood}
       />
     </div>
   );
