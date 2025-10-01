@@ -5,7 +5,7 @@ import { X, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAppContext } from '@/lib/context/AppContext';
+
 import { useAppDispatch } from '@/lib/redux/hooks';
 import { selectUser } from '@/lib/redux/slices/authSlice';
 import { addFoodItem as addFoodItemThunk } from '@/lib/redux/slices/foodlogSlice';
@@ -17,7 +17,7 @@ interface AddFoodModalProps {
 }
 
 export default function AddFoodModal({ isOpen, onClose }: AddFoodModalProps) {
-  const { addFoodItem } = useAppContext();
+
   const user = useSelector(selectUser);
   const uid = user?.uid;
   const dispatch = useAppDispatch();
@@ -63,16 +63,7 @@ export default function AddFoodModal({ isOpen, onClose }: AddFoodModalProps) {
     if (uid) {
       dispatch(addFoodItemThunk({ uid, itemName: formData.name, unit: formData.referenceUnit, refAmt: parsedReferenceQuantity, calories: parsedReferenceCalories, protein: parsedReferenceProtein }));
     }
-    addFoodItem({
-      name: formData.name,
-      caloriesPerUnit,
-      proteinPerUnit,
-      unit: formData.referenceUnit,
-      referenceQuantity: parsedReferenceQuantity,
-      referenceCalories: parsedReferenceCalories,
-      referenceProtein: parsedReferenceProtein,
-      version: 2
-    });
+    
 
     setFormData({
       name: '',

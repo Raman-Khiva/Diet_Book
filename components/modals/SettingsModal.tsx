@@ -5,7 +5,7 @@ import { X, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAppContext } from '@/lib/context/AppContext';
+
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -13,12 +13,12 @@ interface SettingsModalProps {
 }
 
 export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
-  const { userSettings, updateUserSettings } = useAppContext();
+
   const [minCaloriesInput, setMinCaloriesInput] = useState(
-    userSettings.minCalories.toString()
+    "nothing"
   );
   const [minProteinInput, setMinProteinInput] = useState(
-    userSettings.minProtein.toString()
+     "nothing"
   );
 
   const parsedMinCalories = parseInt(minCaloriesInput, 10);
@@ -31,18 +31,6 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     ? 0
     : Math.max(0, parsedMinProtein);
 
-  useEffect(() => {
-    setMinCaloriesInput(userSettings.minCalories.toString());
-    setMinProteinInput(userSettings.minProtein.toString());
-  }, [userSettings]);
-
-  const handleSave = () => {
-    updateUserSettings({
-      minCalories: normalizedMinCalories,
-      minProtein: normalizedMinProtein
-    });
-    onClose();
-  };
 
   if (!isOpen) return null;
 
@@ -138,7 +126,6 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             Cancel
           </Button>
           <Button
-            onClick={handleSave}
             className="flex-1 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
           >
             Save Settings

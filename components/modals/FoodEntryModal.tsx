@@ -4,25 +4,26 @@ import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useAppContext, foodItemId } from '@/lib/context/AppContext';
+
 import { useAppDispatch} from '@/lib/redux/hooks';
 import { selectUser } from '@/lib/redux/slices/authSlice';
-import { addDateToFoodItem, addDateTofoodItemId, addfoodItemIdEntry } from '@/lib/redux/slices/foodlogSlice';
+import { addDateToFoodItem, selectFoodItems} from '@/lib/redux/slices/foodlogSlice';
 import { useSelector } from 'react-redux';
 
 interface FoodEntryModalProps {
   isOpen: boolean;
   onClose: () => void;
-  foodItemId: foodItemId;
+  foodItemId: string;
   date: string;
 }
 
 export default function FoodEntryModal({ isOpen, onClose, foodItemId, date }: FoodEntryModalProps) {
-  const { getFoodEntry, updateFoodEntry } = useAppContext();
+ 
   const dispatch = useAppDispatch();
   const user = useSelector(selectUser); 
   const uid = user?.uid;
   const [amountInput, setAmountInput] = useState('0');
+  const foodItemsList = useSelector(selectFoodItems);
 
   const parsedAmount = parseFloat(amountInput);
   const amount = Number.isNaN(parsedAmount) ? 0 : Math.max(0, parsedAmount);
@@ -43,16 +44,9 @@ export default function FoodEntryModal({ isOpen, onClose, foodItemId, date }: Fo
     return fixed.replace(/\.0+$/, '').replace(/\.(?=0*$)/, '');
   };
 
-  useEffect(() => {
-    if (isOpen) {
-      const entry = getFoodEntry(foodItemId, date);
-      const entryAmount = entry?.amount ?? 0;
-      setAmountInput(entryAmount.toString());
-    }
-  }, [isOpen, foodItemId, date, getFoodEntry]);
+ 
 
   const handleSave = () => {
-    updateFoodEntry(foodItemId, date, amount);
     if (uid) {
       dispatch(addDateToFoodItem({
         uid,
@@ -65,17 +59,16 @@ export default function FoodEntryModal({ isOpen, onClose, foodItemId, date }: Fo
 
   if (!isOpen) return null;
 
-  const unitLabel = foodItemId.unit || 'unit';
-  const referenceQuantity = foodItemId.referenceQuantity ?? 1;
-  const referenceCalories = foodItemId.referenceCalories ?? foodItemId.caloriesPerUnit * referenceQuantity;
-  const referenceProtein = foodItemId.referenceProtein ?? foodItemId.proteinPerUnit * referenceQuantity;
+  const unitLabel ='unit';
+  const referenceQuantity =1;
+  const referenceCalories = 0;
+  const referenceProtein = 0;
 
-  const totalCalories = Math.round(foodItemId.caloriesPerUnit * amount * 100) / 100;
-  const totalProtein = Math.round(foodItemId.proteinPerUnit * amount * 100) / 100;
+  const totalCalories = 1;
+  const totalProtein = 0;
   const formattedAmount = formatQuantity(amount);
   const referenceSummary = `${formatQuantity(referenceQuantity)} ${unitLabel}`;
   const totalReferenceQuantity = amount * referenceQuantity;
-  const formattedTotalReferenceQuantity = formatQuantity(totalReferenceQuantity);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -87,7 +80,7 @@ export default function FoodEntryModal({ isOpen, onClose, foodItemId, date }: Fo
         <div className="flex justify-between items-start mb-4">
           <div>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-              {foodItemId.name}
+              {foodItemId}
             </h2>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               {new Date(date).toLocaleDateString('en-US', { 
@@ -128,7 +121,7 @@ export default function FoodEntryModal({ isOpen, onClose, foodItemId, date }: Fo
               </div>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
-              Per 1 {unitLabel}: {formatNumber(foodItemId.caloriesPerUnit)} cal, {formatNumber(foodItemId.proteinPerUnit)}g protein.
+              Per 1 {unitLabel}: {formatNumber(0)} cal, {formatNumber(0)}g protein.
             </p>
           </div>
 

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useAppContext } from '@/lib/context/AppContext';
+
 import FoodEntryModal from '@/components/modals/FoodEntryModal';
 import AddFoodModal from '@/components/modals/AddFoodModal';
 import { useSelector } from 'react-redux';
@@ -13,7 +13,7 @@ import { fetchFoodItemsByUser, selectDateEntries, selectFoodItems, selectFoodLog
 import { useAppDispatch } from '@/lib/redux/hooks';
 
 export default function TrackerPage() {
-  const { foodItems } = useAppContext();
+  
   const [selectedFood, setSelectedFood] = useState<{ foodItemId: string; date: string } | null>(null);
   const [showAddFood, setShowAddFood] = useState(false);
   const authLoading = useSelector(selectAuthLoading);
@@ -27,25 +27,23 @@ export default function TrackerPage() {
 
   foodItemsList = foodItemsList || [];
 
-  console.log('[TrackerPage] Render', {
-    isAuthed,
-    authLoading,
-    foodLogLoading,
-    userUid: user?.uid ?? null,
-    contextItems: foodItems.length,
-    storeItems: foodItemsList.length,
-  });
+
 
 
   useEffect(() => {
     console.log('[TrackerPage] Auth state changed', {
       isAuthed,
       authLoading,
-      foodLogLoading,
       userUid: user?.uid ?? null,
     });
   }, [authLoading, foodLogLoading, isAuthed, user?.uid]);
 
+  useEffect(() => {
+    if (!isAuthed && !authLoading) {
+      console.log('[TrackerPage] User not authenticated, redirecting to /auth');
+      router.replace('/auth');
+    }
+  }, [authLoading, isAuthed, router]);
 
   useEffect(() => {
     const uid = user?.uid;
@@ -53,36 +51,8 @@ export default function TrackerPage() {
       console.log('[TrackerPage] Skipping food item fetch', { isAuthed, uid: uid ?? null });
       return;
     }
-
-    const fetchItems = async () => {
-      console.log('[TrackerPage] Dispatching fetchFoodItemsByUser', { uid });
-      if(isAuthed && !foodLogLoading){
-  try {
-         dispatch(fetchFoodItemsByUser({ uid }));
-      } catch (error) {
-        console.error('[TrackerPage] Unexpected error dispatching fetch', error);
-      }
- 
-      }
-       };
-
-    void fetchItems();
-  }, [dispatch, isAuthed, user?.uid]);
-
-
-  if(!isAuthed && !authLoading){
-     console.log('[TrackerPage] User not authenticated, redirecting to /auth');
-    router.replace('/auth');
-    return null;
-  }
-  if(authLoading || foodLogLoading){
-    console.log('[TrackerPage] Showing loading state', { authLoading, foodLogLoading });
-    return (
-      <div className='h-screen w-full flex items-center justify-center'>
-        loading...
-      </div>
-    )
-  }
+    dispatch(fetchFoodItemsByUser({uid : uid}));
+  }, [isAuthed, user?.uid, dispatch]);
 
 
   const formatQuantity = (value: number | null) => {
@@ -270,7 +240,7 @@ export default function TrackerPage() {
         </div>
 
         {/* Empty State */}
-        {foodItems.length === 0 && (
+        {foodItemsList.length === 0 && (
           <div className="text-center py-12">
             <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
               <Plus className="h-10 w-10 text-gray-400" />

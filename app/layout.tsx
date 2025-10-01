@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { AppProvider } from '@/lib/context/AppContext';
+
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import Navigation from '@/components/Navigation';
 import ReduxProvider from '@/components/providers/ReduxProvider';
@@ -24,10 +24,10 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider>
           <ReduxProvider>
-            <AppProvider>
+            
               <Navigation />
               {children}
-            </AppProvider>
+            
           </ReduxProvider>
         </ThemeProvider>
       </body>
