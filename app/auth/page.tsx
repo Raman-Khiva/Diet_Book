@@ -4,6 +4,7 @@ import { auth } from "@/lib/firebase";
 import { useAppDispatch } from "@/lib/redux/hooks";
 import { emailLinkSignIn, selectIsAuthed } from "@/lib/redux/slices/authSlice";
 import { isSignInWithEmailLink, onAuthStateChanged, sendSignInLinkToEmail, signInWithEmailLink } from "firebase/auth";
+import { Dot, DotIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
@@ -174,13 +175,12 @@ const Auth = () => {
 
 
     return (
-        <div className="min-h-screen w-full bg-gradient-to-br from-gray-50 via-white to-emerald-100 dark:from-gray-950 dark:via-gray-900 dark:to-slate-900 flex items-center justify-center px-4 py-16">
-            <div className="relative w-full max-w-md">
-                <div className="absolute inset-0 -z-10 rounded-3xl bg-gradient-to-r from-emerald-200/40 via-transparent to-sky-200/40 blur-2xl dark:from-emerald-500/20 dark:via-transparent dark:to-sky-500/20" />
-                <div className="rounded-3xl border border-white/60 bg-white/90 shadow-xl backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/90 p-10">
-                    <div className="flex flex-col items-center text-center gap-6">
-                        <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
-                            Secure Access
+        <div className="min-h-screen flex items-center justify-center">
+            <div className="relative w-full max-w-[25rem] p-[4px] rounded-[1.6rem] bg-white/20  backdrop-blur-3xl shadow-[0_0_10px_rgba(0,0,0,0.1)]">
+                <div className="rounded-3xl bg-white   dark:border-gray-800 dark:bg-gray-900/90 py-10 px-5">
+                    <div className="flex flex-col items-center text-center gap-8">
+                        <div className="inline-flex items-center gap-2 text-sm font-[500] rounded-full bg-blue-50  px-3 py-1 text-xsdark:bg-emerald-500/10 dark:text-emerald-300">
+                             <div className="h-1.5 w-1.5 rounded-full bg-blue-500 "/>Secure Access
                         </div>
                         <div className="space-y-2">
                             <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
@@ -224,7 +224,8 @@ const Auth = () => {
                             <button
                                 type="submit"
                                 disabled={emailSending}
-                                className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-transparent bg-white/90 px-6 py-3 text-sm font-semibold text-emerald-600 shadow-lg shadow-emerald-500/30 transition-all duration-200 hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70 dark:bg-emerald-500/10 dark:text-emerald-300 dark:hover:bg-emerald-500/20"
+                                className='flex items-center justify-center w-full text-md font-semibold  transition-colors duration-300  dark:border-slate-700 dark:bg-gray-900/80 dark:text-white dark:hover:bg-gray-800
+                                           border-2 border-blue-400/80 shadow-md shadow-blue-400/60 rounded-2xl px-4 py-2 bg-[#1b44fe] hover:bg-white text-white hover:text-[#1b44fe]'
                             >
                                 {emailSending ? 'Sending magic link…' : 'Send magic link'}
                             </button>

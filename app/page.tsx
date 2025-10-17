@@ -1,28 +1,56 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, Activity, Target, TrendingUp, CircleCheck as CheckCircle, Sparkles, Users } from 'lucide-react';
+import { ArrowRight, Activity, Target, TrendingUp, CircleCheck as CheckCircle, Sparkles, Users, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      <div className='bg-[#f0f0f0]' >
       {/* Hero Section */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-transparent to-purple-500/10 dark:from-blue-500/5 dark:via-transparent dark:to-purple-500/10"></div>
+        <div className="absolute inset-0 bg-[#f0f0f0] dark:from-blue-500/5 dark:via-transparent dark:to-purple-500/10"></div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
           <div className="grid items-center gap-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
             <div className="space-y-8">
-              <div className="inline-flex items-center gap-3 rounded-full border border-blue-500/20 bg-white/80 px-4 py-2 text-sm font-medium text-blue-600 shadow-sm backdrop-blur dark:border-blue-500/40 dark:bg-gray-900/60 dark:text-blue-300">
-                <span className="rounded-full bg-blue-600 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-white">
+              <div className="bg-white/40 backdrop-blur-xl p-1 w-fit rounded-3xl">
+              <div className="inline-flex items-center gap-3 rounded-full bg-white/90 pl-1 pr-3 py-1 text-sm font-medium text-blue-600 shadow-sm backdrop-blur dark:border-blue-500/40 dark:bg-gray-900/60 dark:text-blue-300">
+                <span className="rounded-full bg-blue-600 px-2 py-1 text-xs font-semibold tracking-wide text-white">
                   Version 2.0
                 </span>
-                <span>Smarter &amp; Faster</span>
+                <span className='text-black'>Smarter &amp; Faster</span>
               </div>
+              </div>
+              <h1 className="flex flex-col gap-3 text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-slate-900 dark:text-white">
+                <span className="flex flex-wrap items-center gap-4">
+                  <span>Power</span>
+                  <span className="bg-white shadow-lg rotate-12 shadow-blue-300 h-fit w-fit p-1 rounded-2xl flex items-center justify-center">
+                  <span className="relative inline-flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-[#1b44fe]">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 256 256"
+                        focusable="false"
+                        fill="currentColor"
+                        style={{
+                          userSelect: "none",
+                          width: "80%",
+                          height: "80%",
+                          display: "inline-block",
+                          flexShrink: 0,
+                          color: "var(--token-48f4cf02-1409-476f-bfe9-36729a835e0c, rgb(255, 255, 255))",
+                        }}
+                      >
+                        <g color="currentColor" weight="fill">
+                          <path d="M213.85,125.46l-112,120a8,8,0,0,1-13.69-7l14.66-73.33L45.19,143.49a8,8,0,0,1-3-13l112-120a8,8,0,0,1,13.69,7L153.18,90.9l57.63,21.61a8,8,0,0,1,3,12.95Z" />
+                        </g>
+                      </svg>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-slate-900 dark:text-white">
-                Power up your workflow with ease.
+                  </span>
+                  </span>
+                  <span>up your</span>
+                </span>
+                <span className="text-balance">workflow with ease.</span>
               </h1>
 
               <p className="text-lg sm:text-xl leading-relaxed text-slate-600 dark:text-slate-300 max-w-xl">
@@ -32,36 +60,34 @@ export default function LandingPage() {
 
               <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                 <Link href="/tracker">
-                  <Button size="lg" className="bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-700 hover:to-indigo-600 text-white px-8 py-4 text-lg font-semibold shadow-lg shadow-blue-500/30 transition-all duration-300">
+                  <Button  className="bg-[#1b44fe] rounded-2xl border-2 border-blue-400/80 shadow-md shadow-blue-400/80   text-white px-4 py-1 text-lg font-semibold  transition-all duration-300
+                  
+                  hover:text-[#1b44fe] hover:bg-white ">
                     Get started
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
-                <Link href="/activity">
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="border-slate-200 bg-white/80 px-8 py-4 text-lg font-semibold text-slate-900 transition-colors duration-300 hover:bg-slate-100 dark:border-slate-700 dark:bg-gray-900/80 dark:text-white dark:hover:bg-gray-800"
-                  >
-                    Talk to sales
-                  </Button>
+                <Link href="/activity"
+                   className='flex items-center  text-lg font-semibold  transition-colors duration-300  dark:border-slate-700 dark:bg-gray-900/80 dark:text-white dark:hover:bg-gray-800
+                              border-2 border-blue-400/80 shadow-md shadow-blue-400/80 rounded-2xl px-8 py-1 text-[#1b44fe] hover:text-white hover:bg-[#1b44fe]
+                   '
+                >
+                  Activiy 
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </div>
 
-              <div className="flex flex-wrap items-center gap-x-10 gap-y-4 text-sm font-semibold text-slate-400 dark:text-slate-500">
-                <span className="uppercase tracking-[0.3em]">Coo</span>
-                <span className="uppercase tracking-[0.3em]">Logopsum</span>
-                <span className="uppercase tracking-[0.3em]">Matrix</span>
-                <span className="uppercase tracking-[0.3em]">Logoispsum</span>
-              </div>
+              
             </div>
 
             <div className="relative">
               <div className="absolute -top-16 -left-12 h-48 w-48 rounded-full bg-blue-500/20 blur-3xl"></div>
               <div className="absolute -bottom-10 -right-10 h-60 w-60 rounded-full bg-indigo-400/20 blur-3xl"></div>
 
-              <div className="relative overflow-hidden rounded-3xl border border-slate-100 bg-white/80 p-8 shadow-2xl backdrop-blur-sm dark:border-slate-800 dark:bg-gray-900/70">
-                <div className="flex items-center justify-between pb-6">
+              <div className="relative overflow-hidden rounded-3xl border-8 border-white bg-[#f0f0f0] p-2  dark:border-slate-800 dark:bg-gray-900/70">
+                <div className="flex items-center bg-white justify-between 
+                                rounded-3xl p-4 mb-6
+                ">
                   <div className="flex items-center gap-3">
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-white">
                       <Sparkles className="h-6 w-6" />
@@ -99,7 +125,7 @@ export default function LandingPage() {
                       <span>+19% vs last week</span>
                     </div>
                   </div>
-                  <div className="rounded-2xl border border-slate-100 p-6 shadow-sm dark:border-slate-800">
+                  <div className="rounded-2xl bg-white p-6 shadow-sm dark:border-slate-800">
                     <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">
                       Total Product Sales
                     </p>
@@ -109,7 +135,7 @@ export default function LandingPage() {
                       <span>Top previous week</span>
                     </div>
                   </div>
-                  <div className="rounded-2xl border border-slate-100 p-6 shadow-sm dark:border-slate-800">
+                  <div className="rounded-2xl bg-white p-6 shadow-sm dark:border-slate-800">
                     <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">
                       Total Customers
                     </p>
@@ -121,7 +147,7 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                <div className="mt-8 rounded-2xl border border-dashed border-slate-200 p-6 dark:border-slate-700">
+                <div className="mt-8 rounded-2xl bg-white border border-dashed border-slate-200 p-6 dark:border-slate-700">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-semibold text-slate-900 dark:text-white">Sales Trends</p>
@@ -139,15 +165,15 @@ export default function LandingPage() {
               <div className="absolute -bottom-10 left-6 w-52 rounded-2xl border border-slate-100 bg-white/90 p-4 shadow-lg backdrop-blur dark:border-slate-800 dark:bg-gray-900/90">
                 <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">Sales by Country</p>
                 <div className="mt-3 space-y-2 text-sm">
-                  <div className="flex items-center justify-between text-slate-600 dark:text-slate-300">
+                  <div className="flex items-center justify_between text-slate-600 dark:text-slate-300">
                     <span>USA</span>
                     <span>$120,000</span>
                   </div>
-                  <div className="flex items-center justify-between text-slate-600 dark:text-slate-300">
+                  <div className="flex items-center justify_between text-slate-600 dark:text-slate-300">
                     <span>Europe</span>
                     <span>$87,450</span>
                   </div>
-                  <div className="flex items-center justify-between text-slate-600 dark:text-slate-300">
+                  <div className="flex items-center justify_between text-slate-600 dark:text-slate-300">
                     <span>Asia</span>
                     <span>$67,210</span>
                   </div>
