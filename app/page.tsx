@@ -6,49 +6,153 @@ import { Button } from '@/components/ui/button';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-green-600/10 dark:from-blue-400/5 dark:to-green-400/5"></div>
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16">
-          <div className="text-center">
-            <div className="flex justify-center mb-8">
-              <div className="relative">
-                <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-green-500 rounded-2xl flex items-center justify-center shadow-2xl">
-                  <Target className="h-10 w-10 text-white" />
-                </div>
-                <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
-                  <Sparkles className="h-3 w-3 text-white" />
-                </div>
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-transparent to-purple-500/10 dark:from-blue-500/5 dark:via-transparent dark:to-purple-500/10"></div>
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
+          <div className="grid items-center gap-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
+            <div className="space-y-8">
+              <div className="inline-flex items-center gap-3 rounded-full border border-blue-500/20 bg-white/80 px-4 py-2 text-sm font-medium text-blue-600 shadow-sm backdrop-blur dark:border-blue-500/40 dark:bg-gray-900/60 dark:text-blue-300">
+                <span className="rounded-full bg-blue-600 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-white">
+                  Version 2.0
+                </span>
+                <span>Smarter &amp; Faster</span>
+              </div>
+
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-slate-900 dark:text-white">
+                Power up your workflow with ease.
+              </h1>
+
+              <p className="text-lg sm:text-xl leading-relaxed text-slate-600 dark:text-slate-300 max-w-xl">
+                Manage tasks, finances, and growth — all in one powerful dashboard tailored for modern teams.
+                Stay ahead with insights that adapt as fast as you do.
+              </p>
+
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                <Link href="/tracker">
+                  <Button size="lg" className="bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-700 hover:to-indigo-600 text-white px-8 py-4 text-lg font-semibold shadow-lg shadow-blue-500/30 transition-all duration-300">
+                    Get started
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
+                <Link href="/activity">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="border-slate-200 bg-white/80 px-8 py-4 text-lg font-semibold text-slate-900 transition-colors duration-300 hover:bg-slate-100 dark:border-slate-700 dark:bg-gray-900/80 dark:text-white dark:hover:bg-gray-800"
+                  >
+                    Talk to sales
+                  </Button>
+                </Link>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-x-10 gap-y-4 text-sm font-semibold text-slate-400 dark:text-slate-500">
+                <span className="uppercase tracking-[0.3em]">Coo</span>
+                <span className="uppercase tracking-[0.3em]">Logopsum</span>
+                <span className="uppercase tracking-[0.3em]">Matrix</span>
+                <span className="uppercase tracking-[0.3em]">Logoispsum</span>
               </div>
             </div>
-            
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
-              Track Your
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-600 dark:from-blue-400 dark:to-green-400">
-                {" "}Nutrition{" "}
-              </span>
-              Journey
-            </h1>
-            
-            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-              The most beautiful and intuitive way to track your daily nutrition. 
-              Monitor calories, protein, and achieve your health goals with stunning visualizations.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/tracker">
-                <Button size="lg" className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 group">
-                  Start Tracking
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
-                </Button>
-              </Link>
-              <Link href="/activity">
-                <Button size="lg" variant="outline" className="px-8 py-4 text-lg font-semibold border-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-300">
-                  View Demo
-                </Button>
-              </Link>
+
+            <div className="relative">
+              <div className="absolute -top-16 -left-12 h-48 w-48 rounded-full bg-blue-500/20 blur-3xl"></div>
+              <div className="absolute -bottom-10 -right-10 h-60 w-60 rounded-full bg-indigo-400/20 blur-3xl"></div>
+
+              <div className="relative overflow-hidden rounded-3xl border border-slate-100 bg-white/80 p-8 shadow-2xl backdrop-blur-sm dark:border-slate-800 dark:bg-gray-900/70">
+                <div className="flex items-center justify-between pb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-white">
+                      <Sparkles className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900 dark:text-white">Dashboard</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Welcome Back, Kadirov!</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs font-medium text-slate-400 dark:text-slate-500">
+                    <span className="rounded-full bg-slate-100 px-3 py-1 dark:bg-slate-800">Products</span>
+                    <span>Customers</span>
+                    <span>Revenue</span>
+                  </div>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="rounded-2xl bg-blue-50 p-6 shadow-sm dark:bg-blue-500/10">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-blue-600 dark:text-blue-300">
+                      Total Sales
+                    </p>
+                    <p className="mt-3 text-2xl font-bold text-slate-900 dark:text-white">$156,654</p>
+                    <div className="mt-2 flex items-center gap-2 text-sm text-blue-500 dark:text-blue-300">
+                      <TrendingUp className="h-4 w-4" />
+                      <span>+24% vs last week</span>
+                    </div>
+                  </div>
+                  <div className="rounded-2xl bg-emerald-50 p-6 shadow-sm dark:bg-emerald-500/10">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-300">
+                      Total Revenue
+                    </p>
+                    <p className="mt-3 text-2xl font-bold text-slate-900 dark:text-white">$541,937</p>
+                    <div className="mt-2 flex items-center gap-2 text-sm text-emerald-500 dark:text-emerald-300">
+                      <ArrowRight className="h-4 w-4" />
+                      <span>+19% vs last week</span>
+                    </div>
+                  </div>
+                  <div className="rounded-2xl border border-slate-100 p-6 shadow-sm dark:border-slate-800">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                      Total Product Sales
+                    </p>
+                    <p className="mt-3 text-2xl font-bold text-slate-900 dark:text-white">43,476</p>
+                    <div className="mt-2 flex items-center gap-2 text-sm text-emerald-500 dark:text-emerald-300">
+                      <CheckCircle className="h-4 w-4" />
+                      <span>Top previous week</span>
+                    </div>
+                  </div>
+                  <div className="rounded-2xl border border-slate-100 p-6 shadow-sm dark:border-slate-800">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                      Total Customers
+                    </p>
+                    <p className="mt-3 text-2xl font-bold text-slate-900 dark:text-white">2,987</p>
+                    <div className="mt-2 flex items-center gap-2 text-sm text-rose-500 dark:text-rose-400">
+                      <ArrowRight className="h-4 w-4 rotate-180" />
+                      <span>-3% vs last week</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 rounded-2xl border border-dashed border-slate-200 p-6 dark:border-slate-700">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900 dark:text-white">Sales Trends</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">July – December, Growth +26%</p>
+                    </div>
+                    <div className="flex gap-2 text-xs font-medium text-slate-400 dark:text-slate-500">
+                      <span className="rounded-full bg-blue-50 px-3 py-1 text-blue-600 dark:bg-blue-500/10 dark:text-blue-200">Dashboard</span>
+                      <span>Performance</span>
+                    </div>
+                  </div>
+                  <div className="mt-6 h-32 rounded-xl bg-gradient-to-r from-blue-100 via-white to-indigo-100 dark:from-blue-500/10 dark:via-transparent dark:to-indigo-500/10"></div>
+                </div>
+              </div>
+
+              <div className="absolute -bottom-10 left-6 w-52 rounded-2xl border border-slate-100 bg-white/90 p-4 shadow-lg backdrop-blur dark:border-slate-800 dark:bg-gray-900/90">
+                <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">Sales by Country</p>
+                <div className="mt-3 space-y-2 text-sm">
+                  <div className="flex items-center justify-between text-slate-600 dark:text-slate-300">
+                    <span>USA</span>
+                    <span>$120,000</span>
+                  </div>
+                  <div className="flex items-center justify-between text-slate-600 dark:text-slate-300">
+                    <span>Europe</span>
+                    <span>$87,450</span>
+                  </div>
+                  <div className="flex items-center justify-between text-slate-600 dark:text-slate-300">
+                    <span>Asia</span>
+                    <span>$67,210</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
