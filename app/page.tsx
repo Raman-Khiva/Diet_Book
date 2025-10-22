@@ -14,6 +14,7 @@ export default function LandingPage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
           <div className="grid items-center gap-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
             <div className="space-y-8">
+
               <div className="bg-white/40 backdrop-blur-xl p-1 w-fit rounded-3xl">
               <div className="inline-flex items-center gap-3 rounded-full bg-white/90 pl-1 pr-3 py-1 text-sm font-medium text-blue-600 shadow-sm backdrop-blur dark:border-blue-500/40 dark:bg-gray-900/60 dark:text-blue-300">
                 <span className="rounded-full bg-blue-600 px-2 py-1 text-xs font-semibold tracking-wide text-white">
@@ -22,6 +23,8 @@ export default function LandingPage() {
                 <span className='text-black'>Smarter &amp; Faster</span>
               </div>
               </div>
+
+
               <h1 className="flex flex-col gap-3 text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-slate-900 dark:text-white">
                 <span className="flex flex-wrap items-center gap-4">
                   <span>Power</span>
@@ -53,14 +56,14 @@ export default function LandingPage() {
                 <span className="text-balance">workflow with ease.</span>
               </h1>
 
-              <p className="text-lg sm:text-xl leading-relaxed text-slate-600 dark:text-slate-300 max-w-xl">
+              <p className="text-lg sm:text-lg font-medium leading-relaxed text-gray-500 dark:text-slate-300 max-w-xl">
                 Manage tasks, finances, and growth — all in one powerful dashboard tailored for modern teams.
                 Stay ahead with insights that adapt as fast as you do.
               </p>
 
               <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                 <Link href="/tracker">
-                  <Button  className="bg-[#1b44fe] rounded-2xl border-2 border-blue-400/80 shadow-md shadow-blue-400/80   text-white px-4 py-1 text-lg font-semibold  transition-all duration-300
+                  <Button  className="bg-[#1b44fe] rounded-xl border-2 border-blue-400/80 shadow-md shadow-blue-400/80   text-white px-4 py-1 text-lg font-semibold  transition-all duration-300
                   
                   hover:text-[#1b44fe] hover:bg-white ">
                     Get started
@@ -69,7 +72,7 @@ export default function LandingPage() {
                 </Link>
                 <Link href="/activity"
                    className='flex items-center  text-lg font-semibold  transition-colors duration-300  dark:border-slate-700 dark:bg-gray-900/80 dark:text-white dark:hover:bg-gray-800
-                              border-2 border-blue-400/80 shadow-md shadow-blue-400/80 rounded-2xl px-8 py-1 text-[#1b44fe] hover:text-white hover:bg-[#1b44fe]
+                              border-2 border-blue-400/80 shadow-md shadow-blue-400/80 rounded-xl px-8 py-1 text-[#1b44fe] hover:text-white hover:bg-[#1b44fe]
                    '
                 >
                   Activiy 
@@ -185,52 +188,80 @@ export default function LandingPage() {
       </div>
 
       {/* Features Section */}
-      <div className="py-20 bg-white dark:bg-gray-800">
+      <div className="py-20  dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Everything you need to succeed
+          <div className="flex flex-col items-center  text-center mb-16">
+            
+              <div className="bg-white/40 backdrop-blur-xl p-1 mb-4 w-fit rounded-3xl">
+              <div className="inline-flex items-center gap-3 rounded-full bg-white/90 pl-1 pr-3 py-1 text-sm font-medium text-blue-600 shadow-sm backdrop-blur dark:border-blue-500/40 dark:bg-gray-900/60 dark:text-blue-300">
+                <span className="rounded-full bg-blue-600 px-2 py-1 text-xs font-semibold tracking-wide text-white">
+                  Version 2.0
+                </span>
+                <span className='text-black'>Smarter &amp; Faster</span>
+              </div>
+              </div>
+
+            <h2 className="text-4xl md:text-6xl font-semibold tracking-tight leading-loose dark:text-white mb-4">
+              Everything you need <br/> to succeed
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            <p className="text-lg font-medium px-20  text-gray-500 dark:text-gray-300 max-w-2xl mx-auto">
               Powerful features designed to make nutrition tracking effortless and insightful
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="group p-8 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border border-blue-200 dark:border-blue-800 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-              <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                <Target className="h-6 w-6 text-white" />
+            <div className="bg-white/50 backdrop-blur-xl p-1.5 rounded-[18px]">
+            <div className="group p-8 rounded-2xl bg-white dark:from-blue-900/20 dark:to-blue-800/20  dark:border-blue-800 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+              <div className="mb-6">
+                <div className="bg-white shadow-lg rotate-12 shadow-blue-300 h-fit w-fit p-1 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <div className="relative inline-flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-blue-500">
+                    <Target className="h-6 w-6 text-white" />
+                  </div>
+                </div>
               </div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
                 Smart Food Tracking
               </h3>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+              <p className="text-gray-500/80 font-medium dark:text-gray-300 leading-relaxed">
                 Intuitive table-based interface with quick entry modals. Track calories and protein with just a few clicks.
               </p>
             </div>
-
-            <div className="group p-8 rounded-2xl bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border border-green-200 dark:border-green-800 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-              <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                <Activity className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                Visual Insights
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                Beautiful charts and graphs to visualize your progress. Switch between calories and protein views instantly.
-              </p>
             </div>
 
-            <div className="group p-8 rounded-2xl bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border border-purple-200 dark:border-purple-800 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-              <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                <TrendingUp className="h-6 w-6 text-white" />
+            <div className="bg-white/50 backdrop-blur-xl p-1.5 rounded-[18px]">
+              <div className="group p-8 rounded-2xl bg-white dark:from-blue-900/20 dark:to-blue-800/20  dark:border-blue-800 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <div className="mb-6">
+                  <div className="bg-white shadow-lg rotate-12 shadow-green-300 h-fit w-fit p-1 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <div className="relative inline-flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-green-500">
+                      <Activity className="h-6 w-6 text-white" />
+                    </div>
+                  </div>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                  Visual Insights
+                </h3>
+                <p className="text-gray-500/80 font-medium dark:text-gray-300 leading-relaxed">
+                  Beautiful charts and graphs to visualize your progress. Switch between calories and protein views instantly.
+                </p>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                Goal Achievement
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                Set personal targets and track your success rate. See at a glance how often you meet your nutrition goals.
-              </p>
+            </div>
+
+            <div className="bg-white/50 backdrop-blur-xl p-1.5 rounded-[18px]">
+              <div className="group p-8 rounded-2xl bg-white dark:from-blue-900/20 dark:to-blue-800/20  dark:border-blue-800 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <div className="mb-6">
+                  <div className="bg-white shadow-lg rotate-12 shadow-purple-300 h-fit w-fit p-1 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <div className="relative inline-flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-purple-500">
+                      <TrendingUp className="h-6 w-6 text-white" />
+                    </div>
+                  </div>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                  Goal Achievement
+                </h3>
+                <p className="text-gray-500/80 font-medium dark:text-gray-300 leading-relaxed">
+                  Set personal targets and track your success rate. See at a glance how often you meet your nutrition goals.
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -277,18 +308,35 @@ export default function LandingPage() {
       </div>
 
       {/* CTA Section */}
-      <div className="py-20 bg-gradient-to-r from-blue-600 to-green-600 dark:from-blue-500 dark:to-green-500">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+      <div className="relative py-20 overflow-hidden bg-[#f0f0f0] dark:from-blue-700 dark:via-indigo-700 dark:to-emerald-600">
+        <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.4),_transparent_55%)]"></div>
+        <div className="absolute inset-y-0 left-1/2 h-[120%] w-[55%] -translate-x-1/2 rounded-full bg-white/10 blur-3xl"></div>
+
+        <div className="relative max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-center mb-6">
+            <div className="bg-white/40 backdrop-blur-xl p-1 w-fit rounded-3xl">
+              <div className="inline-flex items-center gap-3 rounded-full bg-white/90 pl-1 pr-3 py-1 text-sm font-medium text-blue-600 shadow-sm backdrop-blur dark:border-blue-500/40 dark:bg-gray-900/60 dark:text-blue-300">
+                <span className="rounded-full bg-blue-600 px-2 py-1 text-xs font-semibold tracking-wide text-white">
+                  Premium
+                </span>
+                <span className="text-black">Experience</span>
+              </div>
+            </div>
+          </div>
+
+          <h2 className="text-3xl text-black md:text-5xl font-semibold tracking-tight leading-tight mb-6">
             Ready to transform your nutrition habits?
           </h2>
-          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of users who have already started their journey to better health with our beautiful, intuitive nutrition tracker.
+          <p className="text-lg md:text-lg font-semibold text-gray-500/80 mb-10 max-w-2xl mx-auto">
+            Join thousands of users embracing a smarter approach to health. Track meals, monitor macros, and celebrate progress with a beautifully intuitive dashboard.
           </p>
           <Link href="/tracker">
-            <Button size="lg" variant="secondary" className="bg-white text-gray-900 hover:bg-gray-100 px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 group">
-              Get Started Now
-              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
+            <Button
+              size="lg"
+              className="bg-[#1b44fe] rounded-xl border-2 border-blue-400/80 shadow-md shadow-blue-400/80 text-white px-8 py-3 text-lg font-semibold transition-all duration-300 hover:text-[#1b44fe] hover:bg-white"
+            >
+              <span>Get Started Now</span>
+              <ArrowRight className="h-5 w-5" />
             </Button>
           </Link>
         </div>
