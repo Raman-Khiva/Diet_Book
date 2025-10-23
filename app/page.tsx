@@ -44,7 +44,7 @@ export default function LandingPage() {
                           color: "var(--token-48f4cf02-1409-476f-bfe9-36729a835e0c, rgb(255, 255, 255))",
                         }}
                       >
-                        <g color="currentColor" weight="fill">
+                        <g color="currentColor" >
                           <path d="M213.85,125.46l-112,120a8,8,0,0,1-13.69-7l14.66-73.33L45.19,143.49a8,8,0,0,1-3-13l112-120a8,8,0,0,1,13.69,7L153.18,90.9l57.63,21.61a8,8,0,0,1,3,12.95Z" />
                         </g>
                       </svg>
@@ -168,15 +168,15 @@ export default function LandingPage() {
               <div className="absolute -bottom-10 left-6 w-52 rounded-2xl border border-slate-100 bg-white/90 p-4 shadow-lg backdrop-blur dark:border-slate-800 dark:bg-gray-900/90">
                 <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">Sales by Country</p>
                 <div className="mt-3 space-y-2 text-sm">
-                  <div className="flex items-center justify_between text-slate-600 dark:text-slate-300">
+                  <div className="flex items-center justify-between text-slate-600 dark:text-slate-300">
                     <span>USA</span>
                     <span>$120,000</span>
                   </div>
-                  <div className="flex items-center justify_between text-slate-600 dark:text-slate-300">
+                  <div className="flex items-center justify-between text-slate-600 dark:text-slate-300">
                     <span>Europe</span>
                     <span>$87,450</span>
                   </div>
-                  <div className="flex items-center justify_between text-slate-600 dark:text-slate-300">
+                  <div className="flex items-center justify-between text-slate-600 dark:text-slate-300">
                     <span>Asia</span>
                     <span>$67,210</span>
                   </div>

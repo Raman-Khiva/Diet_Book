@@ -179,7 +179,7 @@ const Auth = () => {
             <div className="relative w-full max-w-[25rem] p-[4px] rounded-[1.6rem] bg-white/20  backdrop-blur-3xl shadow-[0_0_10px_rgba(0,0,0,0.1)]">
                 <div className="rounded-3xl bg-white   dark:border-gray-800 dark:bg-gray-900/90 py-10 px-5">
                     <div className="flex flex-col items-center text-center gap-8">
-                        <div className="inline-flex items-center gap-2 text-sm font-[500] rounded-full bg-blue-50  px-3 py-1 text-xsdark:bg-emerald-500/10 dark:text-emerald-300">
+                        <div className="inline-flex items-center gap-2 text-sm font-[500] rounded-full bg-blue-50  px-3 py-1 dark:bg-emerald-500/10 dark:text-emerald-300">
                              <div className="h-1.5 w-1.5 rounded-full bg-blue-500 "/>Secure Access
                         </div>
                         <div className="space-y-2">
@@ -224,7 +224,7 @@ const Auth = () => {
                             <button
                                 type="submit"
                                 disabled={emailSending}
-                                className='flex items-center justify-center w-full text-md font-semibold  transition-colors duration-300  dark:border-slate-700 dark:bg-gray-900/80 dark:text-white dark:hover:bg-gray-800
+                                className='flex items-center justify-center w-full text-base font-semibold  transition-colors duration-300  dark:border-slate-700 dark:bg-gray-900/80 dark:text-white dark:hover:bg-gray-800
                                            border-2 border-blue-400/80 shadow-md shadow-blue-400/60 rounded-2xl px-4 py-2 bg-[#1b44fe] hover:bg-white text-white hover:text-[#1b44fe]'
                             >
                                 {emailSending ? 'Sending magic link…' : 'Send magic link'}
